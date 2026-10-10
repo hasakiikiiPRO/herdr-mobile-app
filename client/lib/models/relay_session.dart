@@ -40,6 +40,16 @@ class RelaySession {
       focusedPaneId: json['focused_pane_id'] as String?,
     );
   }
+
+  /// Serializes back to the snapshot shape (round-trips with [fromJson]) so a
+  /// successful session can be cached for instant restore on reconnect.
+  Map<String, dynamic> toJson() => {
+        'workspaces': [for (final w in workspaces) w.toJson()],
+        'panes': [for (final p in panes) p.toJson()],
+        if (focusedWorkspaceId != null)
+          'focused_workspace_id': focusedWorkspaceId,
+        if (focusedPaneId != null) 'focused_pane_id': focusedPaneId,
+      };
 }
 
 /// A herdr workspace ("space"): a terminal project area.
@@ -67,6 +77,14 @@ class RelayWorkspace {
         paneCount: (json['pane_count'] as num?)?.toInt() ?? 0,
         focused: json['focused'] == true,
       );
+
+  Map<String, dynamic> toJson() => {
+        'workspace_id': id,
+        'label': label,
+        'agent_status': status,
+        'pane_count': paneCount,
+        'focused': focused,
+      };
 }
 
 /// A terminal pane in a workspace — either an agent pane or a plain
@@ -101,4 +119,13 @@ class RelayPane {
         status: (json['agent_status'] ?? 'unknown').toString(),
         cwd: json['cwd'] as String?,
       );
+
+  Map<String, dynamic> toJson() => {
+        'pane_id': id,
+        'workspace_id': workspaceId,
+        'tab_id': tabId,
+        'agent': agent,
+        'agent_status': status,
+        if (cwd != null) 'cwd': cwd,
+      };
 }

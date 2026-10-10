@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
 import '../models/relay_session.dart';
+import '../services/app_settings.dart';
 import '../services/relay_client.dart';
 import '../utils/async_value.dart';
 import 'agents_store.dart';
@@ -17,18 +19,32 @@ import 'agents_store.dart';
 ///   - live refresh: pane structure changes (agents' statuses now live in
 ///     [AgentsStore]) invalidate workspace/space statuses, so the session is
 ///     re-read debounced (300 ms) off [AgentsStore.structureRevision];
-///   - a generation counter discards stale responses when refreshes overlap.
+///   - a generation counter discards stale responses when refreshes overlap;
+///   - stale-while-revalidate: the last successful snapshot is persisted per
+///     profile so reopen/reconnect shows workspaces immediately (docs/15).
 class SessionController extends ChangeNotifier {
-  SessionController(this._client, this._store) {
+  SessionController(
+    this._client,
+    this._store,
+    this._settings, {
+    required this.profileKey,
+  }) {
     _client.status.addListener(_onConnectionStatus);
     _store.structureRevision.addListener(_onStructureChanged);
     // No eager load: [ensureLoaded] fetches on the first page that needs the
     // session (the Spaces tab is the default), so a session is never fetched
-    // before anything shows it.
+    // before anything shows it. Seed from disk so the first paint is instant.
+    _hydrateFromCache();
   }
 
   final RelayClient _client;
   final AgentsStore _store;
+  final AppSettings _settings;
+
+  /// Active relay profile key — scopes the disk cache so switching devices
+  /// never flashes another machine's workspaces.
+  final String profileKey;
+
   Timer? _refreshDebounce;
   AsyncValue<RelaySession> _state = const AsyncIdle();
   int _generation = 0;
@@ -37,12 +53,20 @@ class SessionController extends ChangeNotifier {
   /// session is re-read (reconnect catch-up).
   bool _wasDisconnected = false;
 
+  /// JSON of the last cached snapshot — unchanged writes are skipped.
+  String? _lastCachedJson;
+
   AsyncValue<RelaySession> get state => _state;
 
   /// Loads the session once (no-op once a load is in flight or done). Called
   /// by the Spaces and Run tabs on first build.
   void ensureLoaded() {
-    if (_state is AsyncIdle<RelaySession>) _load();
+    if (_state is AsyncIdle<RelaySession>) {
+      _load();
+    } else if (_state is AsyncData<RelaySession> && _generation == 0) {
+      // Hydrated from cache only — still need a fresh network fetch.
+      _load();
+    }
   }
 
   /// Reloads the session unconditionally (pull-to-refresh, Retry, after
@@ -70,6 +94,45 @@ class SessionController extends ChangeNotifier {
     return null;
   }
 
+  void _hydrateFromCache() {
+    final cached = _readCache();
+    if (cached == null) return;
+    _state = AsyncData(cached);
+    // generation stays 0 so ensureLoaded still triggers a network refresh.
+  }
+
+  RelaySession? _readCache() {
+    if (_settings.sessionSnapshotProfile != profileKey) return null;
+    final raw = _settings.sessionSnapshot;
+    if (raw == null) return null;
+    try {
+      final json = jsonDecode(raw);
+      if (json is! Map) return null;
+      final session = RelaySession.fromJson(json.cast<String, dynamic>());
+      _lastCachedJson = raw;
+      return session;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _writeCache(RelaySession session) {
+    final json = jsonEncode(session.toJson());
+    if (json == _lastCachedJson &&
+        _settings.sessionSnapshotProfile == profileKey) {
+      return;
+    }
+    _lastCachedJson = json;
+    _settings.setSessionSnapshot(json);
+    _settings.setSessionSnapshotAt(DateTime.now().toIso8601String());
+    _settings.setSessionSnapshotProfile(profileKey);
+    final wsId = session.focusedWorkspaceId ??
+        (session.workspaces.isNotEmpty ? session.workspaces.first.id : null);
+    if (wsId != null && wsId.isNotEmpty) {
+      _settings.setLastWorkspaceId(wsId);
+    }
+  }
+
   void _onConnectionStatus() {
     final status = _client.status.value;
     if (status == RelayStatus.connected) {
@@ -94,6 +157,8 @@ class SessionController extends ChangeNotifier {
 
   Future<void> _load() async {
     final gen = ++_generation;
+    // Keep showing cached / previous data while refreshing (SWR). Only flip
+    // to loading when we have nothing useful to paint.
     if (_state is! AsyncData<RelaySession>) {
       _state = const AsyncLoading();
       notifyListeners();
@@ -101,10 +166,22 @@ class SessionController extends ChangeNotifier {
     try {
       final session = await _client.session();
       if (gen != _generation) return; // superseded by a newer load
+      _writeCache(session);
       _state = AsyncData(session);
       notifyListeners();
     } catch (e) {
       if (gen != _generation) return;
+      // Network error: keep showing cached data when available.
+      if (_state is AsyncData<RelaySession>) {
+        notifyListeners();
+        return;
+      }
+      final cached = _readCache();
+      if (cached != null) {
+        _state = AsyncData(cached);
+        notifyListeners();
+        return;
+      }
       _state = AsyncError(e);
       notifyListeners();
     }

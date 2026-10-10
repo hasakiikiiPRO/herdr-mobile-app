@@ -38,6 +38,9 @@ class FakeRelayClient implements RelayClient {
   /// When true, `snapshot()` throws [RelayException].
   bool snapshotError = false;
 
+  /// When non-null, `session()` throws this error.
+  Object? sessionError;
+
   /// Number of `session()` calls (reconnect tests).
   int sessionCalls = 0;
 
@@ -95,6 +98,9 @@ class FakeRelayClient implements RelayClient {
   @override
   Future<RelaySession> session() async {
     sessionCalls++;
+    if (sessionError != null) {
+      throw sessionError!;
+    }
     final result = sessionData;
     if (sessionCalls == 1 && firstSessionGate != null) {
       await firstSessionGate!.future;

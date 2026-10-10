@@ -69,7 +69,12 @@ Future<void> setupTestDependencies(
 
   // Shared session state for the Spaces/Run tabs (mirrors production wiring).
   getIt.registerSingleton<SessionController>(
-    SessionController(getIt<RelayClient>(), getIt<AgentsStore>()),
+    SessionController(
+      getIt<RelayClient>(),
+      getIt<AgentsStore>(),
+      getIt<AppSettings>(),
+      profileKey: config.profileKey,
+    ),
   );
 }
 

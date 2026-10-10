@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:client/controllers/session_controller.dart';
+import 'package:client/services/app_settings.dart';
 import 'package:client/core/service_locator.dart';
 import 'package:client/models/pair_config.dart';
 import 'package:client/models/relay_event.dart';
@@ -124,6 +126,81 @@ void main() {
       expect(c.freePaneFor('wH')?.id, 'wH:p9');
       expect(c.freePaneFor('missing'), isNull);
       expect(c.freePaneFor(null), isNull);
+
+      await teardownTestDependencies();
+    });
+
+    testWidgets('hydrates from disk cache then refreshes (SWR)', (tester) async {
+      final cached = const RelaySession(
+        workspaces: [RelayWorkspace(id: 'cached', label: 'cached-ws')],
+        panes: [],
+        focusedWorkspaceId: 'cached',
+      );
+      final client = FakeRelayClient()
+        ..sessionData = const RelaySession(
+          workspaces: [RelayWorkspace(id: 'fresh', label: 'fresh-ws')],
+          panes: [],
+          focusedWorkspaceId: 'fresh',
+        );
+      await setupTestDependencies(client, config, prefsSeed: {
+        AppSettings.kSessionSnapshot: jsonEncode(cached.toJson()),
+        AppSettings.kSessionSnapshotAt: '2026-10-10T12:00:00.000',
+        AppSettings.kSessionSnapshotProfile: config.profileKey,
+        AppSettings.kLastWorkspaceId: 'cached',
+      });
+      final c = getIt<SessionController>();
+      expect(c.state, isA<AsyncData<RelaySession>>(),
+          reason: 'constructor must hydrate from disk before any RPC');
+      expect(c.state.dataOrNull?.workspaces.single.id, 'cached');
+
+      c.ensureLoaded();
+      await tester.pump();
+      expect(client.sessionCalls, 1);
+      expect(c.state.dataOrNull?.workspaces.single.id, 'fresh',
+          reason: 'network refresh replaces the stale cache');
+      expect(getIt<AppSettings>().lastWorkspaceId, 'fresh');
+
+      await teardownTestDependencies();
+    });
+
+    testWidgets('ignores cache from another profile', (tester) async {
+      final cached = const RelaySession(
+        workspaces: [RelayWorkspace(id: 'other', label: 'other-ws')],
+        panes: [],
+      );
+      final client = FakeRelayClient()..sessionData = session;
+      await setupTestDependencies(client, config, prefsSeed: {
+        AppSettings.kSessionSnapshot: jsonEncode(cached.toJson()),
+        AppSettings.kSessionSnapshotProfile: 'someone-else',
+      });
+      final c = getIt<SessionController>();
+      expect(c.state, isA<AsyncIdle<RelaySession>>(),
+          reason: 'cache for another profile must not hydrate');
+      c.ensureLoaded();
+      await tester.pump();
+      expect(c.state.dataOrNull?.workspaces.single.id, 'wH');
+
+      await teardownTestDependencies();
+    });
+
+    testWidgets('keeps cached session when reconnect fetch fails',
+        (tester) async {
+      final cached = const RelaySession(
+        workspaces: [RelayWorkspace(id: 'cached', label: 'cached-ws')],
+        panes: [],
+      );
+      final client = FakeRelayClient()..sessionError = Exception('down');
+      await setupTestDependencies(client, config, prefsSeed: {
+        AppSettings.kSessionSnapshot: jsonEncode(cached.toJson()),
+        AppSettings.kSessionSnapshotProfile: config.profileKey,
+      });
+      final c = getIt<SessionController>();
+      expect(c.state.dataOrNull?.workspaces.single.id, 'cached');
+      c.ensureLoaded();
+      await tester.pump();
+      expect(c.state, isA<AsyncData<RelaySession>>(),
+          reason: 'failed refresh must keep showing cache');
+      expect(c.state.dataOrNull?.workspaces.single.id, 'cached');
 
       await teardownTestDependencies();
     });

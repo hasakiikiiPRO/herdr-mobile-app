@@ -4,6 +4,7 @@ import '../core/connection/connection_fallback_manager.dart';
 import '../core/service_locator.dart';
 import '../core/transport/transport.dart';
 import '../models/pair_config.dart';
+import '../services/app_settings.dart';
 import '../services/config_store.dart';
 import '../services/notification_service.dart';
 import '../services/relay_client.dart';
@@ -107,6 +108,8 @@ class AppSessionController extends ChangeNotifier {
     return _run(() async {
       final active = _config;
       if (active != null) await _configStore.forget(active.profileKey);
+      // Drop cached session so the next pair does not flash old workspaces.
+      getIt<AppSettings>().clearSessionSnapshot();
       final next = await _configStore.loadActive();
       if (next == null) {
         // No profile left: disarm the fallback manager, otherwise it would keep

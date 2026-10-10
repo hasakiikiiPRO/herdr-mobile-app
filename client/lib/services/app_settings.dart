@@ -11,8 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// A [ChangeNotifier]: setters persist and notify, so UI (e.g. the
 /// notifications settings page) can react instead of keeping a manual copy.
 ///
-/// Scope (per docs/13-client-settings.md): app-level UI settings + the agent
-/// snapshot cache (previously ad-hoc keys in `agent_repository.dart`).
+/// Scope (per docs/13-client-settings.md / docs/15-client-cache-strategy.md):
+/// app-level UI settings + agent/session snapshot caches.
 /// Profile/command-history storage keeps its own typed services (ConfigStore,
 /// CommandHistoryService) — already key-centralized.
 class AppSettings extends ChangeNotifier {
@@ -28,6 +28,10 @@ class AppSettings extends ChangeNotifier {
   static const String kNotificationsEnabled = 'settings_notifications_enabled';
   static const String kAgentSnapshot = 'last_snapshot';
   static const String kAgentSnapshotAt = 'last_snapshot:ts';
+  static const String kSessionSnapshot = 'session_snapshot';
+  static const String kSessionSnapshotAt = 'session_snapshot:ts';
+  static const String kSessionSnapshotProfile = 'session_snapshot:profile';
+  static const String kLastWorkspaceId = 'last_workspace_id';
 
   // ── App-level settings ─────────────────────────────────────────────────
 
@@ -91,6 +95,56 @@ class AppSettings extends ChangeNotifier {
 
   void setAgentSnapshotAt(String iso) {
     _prefs.setString(kAgentSnapshotAt, iso);
+    notifyListeners();
+  }
+
+  // ── Session snapshot cache (stale-while-revalidate on reconnect) ───────
+
+  /// Raw JSON of the last successful `session.snapshot`, or null when never
+  /// cached (see `session_controller.dart`).
+  String? get sessionSnapshot => _prefs.getString(kSessionSnapshot);
+
+  void setSessionSnapshot(String json) {
+    _prefs.setString(kSessionSnapshot, json);
+    notifyListeners();
+  }
+
+  /// ISO-8601 timestamp of the last successful session snapshot, or null.
+  String? get sessionSnapshotAt => _prefs.getString(kSessionSnapshotAt);
+
+  void setSessionSnapshotAt(String iso) {
+    _prefs.setString(kSessionSnapshotAt, iso);
+    notifyListeners();
+  }
+
+  /// Profile key the cached session belongs to (avoids showing another
+  /// relay's workspaces after a device switch).
+  String? get sessionSnapshotProfile =>
+      _prefs.getString(kSessionSnapshotProfile);
+
+  void setSessionSnapshotProfile(String profileKey) {
+    _prefs.setString(kSessionSnapshotProfile, profileKey);
+    notifyListeners();
+  }
+
+  /// Last focused / selected workspace id within the active profile.
+  String? get lastWorkspaceId => _prefs.getString(kLastWorkspaceId);
+
+  void setLastWorkspaceId(String? id) {
+    if (id == null || id.isEmpty) {
+      _prefs.remove(kLastWorkspaceId);
+    } else {
+      _prefs.setString(kLastWorkspaceId, id);
+    }
+    notifyListeners();
+  }
+
+  /// Clears the session snapshot cache (e.g. when forgetting a device).
+  void clearSessionSnapshot() {
+    _prefs.remove(kSessionSnapshot);
+    _prefs.remove(kSessionSnapshotAt);
+    _prefs.remove(kSessionSnapshotProfile);
+    _prefs.remove(kLastWorkspaceId);
     notifyListeners();
   }
 }

@@ -18,6 +18,10 @@ void main() {
       expect(s.notificationsEnabled, isTrue);
       expect(s.agentSnapshot, isNull);
       expect(s.agentSnapshotAt, isNull);
+      expect(s.sessionSnapshot, isNull);
+      expect(s.sessionSnapshotAt, isNull);
+      expect(s.sessionSnapshotProfile, isNull);
+      expect(s.lastWorkspaceId, isNull);
     });
   });
 
@@ -71,3 +75,27 @@ void main() {
     });
   });
 }
+
+group('AppSettings: session snapshot cache', () {
+  test('session snapshot + profile + workspace round-trip', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    AppSettings(prefs)
+      ..setSessionSnapshot('{"workspaces":[],"panes":[]}')
+      ..setSessionSnapshotAt('2026-10-10T12:00:00.000')
+      ..setSessionSnapshotProfile('relay-abc')
+      ..setLastWorkspaceId('wH');
+    final read = AppSettings(prefs);
+    expect(read.sessionSnapshot, '{"workspaces":[],"panes":[]}');
+    expect(read.sessionSnapshotAt, '2026-10-10T12:00:00.000');
+    expect(read.sessionSnapshotProfile, 'relay-abc');
+    expect(read.lastWorkspaceId, 'wH');
+
+    AppSettings(prefs).clearSessionSnapshot();
+    final cleared = AppSettings(prefs);
+    expect(cleared.sessionSnapshot, isNull);
+    expect(cleared.sessionSnapshotAt, isNull);
+    expect(cleared.sessionSnapshotProfile, isNull);
+    expect(cleared.lastWorkspaceId, isNull);
+  });
+});

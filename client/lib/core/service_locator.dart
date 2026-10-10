@@ -141,8 +141,14 @@ Future<void> setupRelayServices(
   );
 
   // Shared session state for the Spaces/Run tabs (loads once on registration).
+  // Profile-scoped disk cache restores workspaces instantly on reopen.
   getIt.registerSingleton<SessionController>(
-    SessionController(getIt<RelayClient>(), getIt<AgentsStore>()),
+    SessionController(
+      getIt<RelayClient>(),
+      getIt<AgentsStore>(),
+      getIt<AppSettings>(),
+      profileKey: config.profileKey,
+    ),
   );
 
   // Local notifications for blocked agents while the app is in the background.

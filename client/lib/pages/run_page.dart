@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../controllers/session_controller.dart';
 import '../core/service_locator.dart';
 import '../models/relay_session.dart';
+import '../services/app_settings.dart';
 import '../utils/async_value.dart';
 import '../utils/toast_service.dart';
 
@@ -43,8 +44,7 @@ class _RunPageState extends State<RunPage> {
     _controller.addListener(_ensureDefaultWorkspace);
     // The controller may already be loaded (e.g. the Spaces tab fetched it) —
     // pick the default now (no setState needed before the first build).
-    _workspaceId ??=
-        _controller.state.dataOrNull?.workspaces.firstOrNull?.id;
+    _workspaceId ??= _defaultWorkspaceId(_controller.state.dataOrNull);
   }
 
   @override
@@ -57,8 +57,20 @@ class _RunPageState extends State<RunPage> {
   void _ensureDefaultWorkspace() {
     final session = _controller.state.dataOrNull;
     if (session != null && session.workspaces.isNotEmpty && _workspaceId == null) {
-      setState(() => _workspaceId = session.workspaces.first.id);
+      setState(() => _workspaceId = _defaultWorkspaceId(session));
     }
+  }
+
+  /// Prefer persisted last workspace, then session focus, then first workspace.
+  String? _defaultWorkspaceId(RelaySession? session) {
+    if (session == null || session.workspaces.isEmpty) return null;
+    final settings = getIt<AppSettings>();
+    final preferred = settings.lastWorkspaceId ?? session.focusedWorkspaceId;
+    if (preferred != null &&
+        session.workspaces.any((w) => w.id == preferred)) {
+      return preferred;
+    }
+    return session.workspaces.first.id;
   }
 
   /// First free (agent-less) pane of the selected workspace, if any.
@@ -157,7 +169,10 @@ class _RunPageState extends State<RunPage> {
                         child: Text(ws.label.isEmpty ? ws.id : ws.label),
                       ),
                   ],
-                  onChanged: (v) => setState(() => _workspaceId = v),
+                  onChanged: (v) {
+                    setState(() => _workspaceId = v);
+                    getIt<AppSettings>().setLastWorkspaceId(v);
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextField(

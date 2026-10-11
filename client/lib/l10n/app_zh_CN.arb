@@ -213,7 +213,7 @@
   "send": "发送",
   "limitedConnectivity": "检测到连接能力有限",
   "limitedConnectivityBody": "你的中转目前只能通过 LAN（本地 WiFi）访问。离开家后将无法连接，除非：",
-  "installTailscaleBoth": "• 在两台设备上都安装 Tailscale",
+  "installTailscaleBoth": "• 在两台设备上都安装 Tailscale 或 EasyTier",
   "rescanQrTailscale": "• 重新扫描二维码以保存 Tailscale 端点",
   "learnMore": "了解更多",
   "continueAnyway": "仍然继续",

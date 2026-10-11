@@ -383,7 +383,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your relay is only reachable via LAN (local WiFi). When you leave home you won\'t be able to connect unless:';
 
   @override
-  String get installTailscaleBoth => '• Install Tailscale on both devices';
+  String get installTailscaleBoth =>
+      '• Install Tailscale or EasyTier on both devices';
 
   @override
   String get rescanQrTailscale =>

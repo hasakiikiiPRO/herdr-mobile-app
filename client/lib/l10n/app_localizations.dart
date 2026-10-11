@@ -768,7 +768,7 @@ abstract class AppLocalizations {
   /// No description provided for @installTailscaleBoth.
   ///
   /// In en, this message translates to:
-  /// **'• Install Tailscale on both devices'**
+  /// **'• Install Tailscale or EasyTier on both devices'**
   String get installTailscaleBoth;
 
   /// No description provided for @rescanQrTailscale.

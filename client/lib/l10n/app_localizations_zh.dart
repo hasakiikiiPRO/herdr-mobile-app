@@ -370,7 +370,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '你的中转目前只能通过 LAN（本地 WiFi）访问。离开家后将无法连接，除非：';
 
   @override
-  String get installTailscaleBoth => '• 在两台设备上都安装 Tailscale';
+  String get installTailscaleBoth => '• 在两台设备上都安装 Tailscale 或 EasyTier';
 
   @override
   String get rescanQrTailscale => '• 重新扫描二维码以保存 Tailscale 端点';
@@ -831,7 +831,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
       '你的中转目前只能通过 LAN（本地 WiFi）访问。离开家后将无法连接，除非：';
 
   @override
-  String get installTailscaleBoth => '• 在两台设备上都安装 Tailscale';
+  String get installTailscaleBoth => '• 在两台设备上都安装 Tailscale 或 EasyTier';
 
   @override
   String get rescanQrTailscale => '• 重新扫描二维码以保存 Tailscale 端点';

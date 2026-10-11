@@ -213,7 +213,7 @@
   "send": "Send",
   "limitedConnectivity": "Limited connectivity detected",
   "limitedConnectivityBody": "Your relay is only reachable via LAN (local WiFi). When you leave home you won't be able to connect unless:",
-  "installTailscaleBoth": "• Install Tailscale on both devices",
+  "installTailscaleBoth": "• Install Tailscale or EasyTier on both devices",
   "rescanQrTailscale": "• Re-scan the QR code to save the Tailscale endpoint",
   "learnMore": "Learn more",
   "continueAnyway": "Continue anyway",

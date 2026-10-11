@@ -91,7 +91,23 @@ class PairConfig {
   /// True when the relay is reachable over the local network only: exactly one
   /// endpoint and that one is LAN. Away from home it is unreachable, so pages
   /// surface a warning and push the user towards Tailscale/Funnel.
-  bool get isLanOnly => endpoints.length == 1 && mode == 'lan';
+  bool get isLanOnly =>
+      endpoints.length == 1 && mode == 'lan' && !isOverlayHost(host);
+
+  /// True for VPN/overlay addresses that are reachable away from home even
+  /// though the relay advertised them as `lan`: EasyTier's default
+  /// 10.126.126.0/24 and CGNAT 100.64.0.0/10 (Tailscale, EasyTier, ZeroTier
+  /// setups using CGNAT). Plain private ranges (192.168/16, 172.16/12, other
+  /// 10/8) stay LAN-only.
+  static bool isOverlayHost(String host) {
+    final parts = host.split('.');
+    if (parts.length != 4) return false;
+    final o = parts.map(int.tryParse).toList();
+    if (o.any((v) => v == null || v < 0 || v > 255)) return false;
+    if (o[0] == 10 && o[1] == 126 && o[2] == 126) return true;
+    if (o[0] == 100 && o[1]! >= 64 && o[1]! <= 127) return true;
+    return false;
+  }
 
   /// Returns a copy with [more] endpoints merged in (active connection
   /// unchanged). Used to remember every mode /pair advertised.

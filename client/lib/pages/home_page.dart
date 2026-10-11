@@ -11,6 +11,7 @@ import '../models/relay_agent.dart';
 import '../repositories/agent_repository.dart';
 import '../services/app_settings.dart';
 import '../services/relay_client.dart';
+import '../services/command_history_service.dart';
 import '../utils/async_value.dart';
 import '../widgets/mode_picker_sheet.dart';
 import '../widgets/status_chip.dart';
@@ -564,7 +565,10 @@ class _AgentTile extends StatelessWidget {
         children: [
           Flexible(
             child: Text(
-              agent.displayAgent,
+              agent.primaryLabel(
+                  lastPrompt: getIt.isRegistered<CommandHistoryService>()
+                      ? getIt<CommandHistoryService>().lastSync(agent.id)
+                      : null),
               overflow: TextOverflow.ellipsis,
               style: agent.isBlocked ? const TextStyle(fontWeight: FontWeight.bold) : null,
             ),
@@ -573,9 +577,12 @@ class _AgentTile extends StatelessWidget {
           StatusChip(status: agent.status),
         ],
       ),
-      subtitle: agent.cwd == null || agent.cwd!.isEmpty
-          ? Text(agent.id, style: theme.textTheme.bodySmall)
-          : Text('${agent.cwd}  ·  ${agent.id}', style: theme.textTheme.bodySmall),
+      subtitle: Text(
+        [agent.displayAgent, agent.id, if ((agent.cwd ?? '').isNotEmpty) agent.cwd!]
+            .join('  ·  '),
+        style: theme.textTheme.bodySmall,
+        overflow: TextOverflow.ellipsis,
+      ),
       trailing: agent.focused ? const Icon(Icons.center_focus_strong, size: 16) : null,
     );
 

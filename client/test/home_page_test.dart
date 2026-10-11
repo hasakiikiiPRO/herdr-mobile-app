@@ -165,7 +165,7 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    expect(find.text('kimi'), findsOneWidget);
+    expect(find.textContaining('kimi'), findsOneWidget);
   });
 
   testWidgets('статус-событие неизвестного pane делает отложенный snapshot', (tester) async {

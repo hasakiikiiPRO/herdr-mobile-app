@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart' show StringCharacters;
+
 /// An agent from the relay snapshot (`agents.snapshot`).
 ///
 /// The record shape matches what the relay receives from herdr
@@ -14,7 +16,11 @@ class RelayAgent {
     this.focused = false,
     this.workspaceId = '',
     this.isPlainTerminal = false,
+    this.terminalTitle,
   });
+
+  /// OSC terminal title reported by herdr (ANSI/emoji-stripped when available).
+  final String? terminalTitle;
 
   /// pane_id is the only valid target for agent operations.
   final String id;
@@ -50,6 +56,7 @@ class RelayAgent {
     bool? focused,
     String? workspaceId,
     bool? isPlainTerminal,
+    String? terminalTitle,
   }) {
     return RelayAgent(
       id: id ?? this.id,
@@ -59,11 +66,58 @@ class RelayAgent {
       focused: focused ?? this.focused,
       workspaceId: workspaceId ?? this.workspaceId,
       isPlainTerminal: isPlainTerminal ?? this.isPlainTerminal,
+      terminalTitle: terminalTitle ?? this.terminalTitle,
     );
   }
 
   /// Human-readable name for the list: agent, otherwise pane_id.
   String get displayAgent => agent.isEmpty ? id : agent;
+
+  /// Short pane id (`w4:p27` -> `p27`).
+  String get shortId => id.contains(':') ? id.split(':').last : id;
+
+  String get cwdBase {
+    final c = (cwd ?? '').replaceAll(RegExp(r'/+$'), '');
+    if (c.isEmpty) return '';
+    final i = c.lastIndexOf(RegExp(r'[/\\]'));
+    return i < 0 ? c : c.substring(i + 1);
+  }
+
+  /// The terminal title when it actually says something about this session
+  /// (claude sets it to the conversation topic). Generic titles such as
+  /// `π - cc`, `pi`, `user@host: ~/cc` or the cwd name return null.
+  String? get meaningfulTitle {
+    var t = (terminalTitle ?? '').trim();
+    t = t.replaceFirst(RegExp(r'^[^\p{L}\p{N}]+', unicode: true), '').trim();
+    if (t.isEmpty) return null;
+    final low = t.toLowerCase();
+    final a = agent.toLowerCase();
+    final base = cwdBase.toLowerCase();
+    if (low == a || low == base) return null;
+    if (RegExp(r'^[\w.-]+@[\w.-]+:').hasMatch(t)) return null;
+    final m = RegExp(r'^(.+?)\s*[-–—:]\s*(.+)$').firstMatch(low);
+    if (m != null) {
+      final l = m.group(1)!, r = m.group(2)!;
+      final generic = {a, 'π', 'pi', base, ''};
+      if (generic.contains(l) && (generic.contains(r) || r == cwd?.toLowerCase())) {
+        return null;
+      }
+    }
+    return t;
+  }
+
+  /// Distinct primary label for a row: meaningful terminal title, else
+  /// "cwd · last prompt", else "cwd · pane id".
+  String primaryLabel({String? lastPrompt}) {
+    final title = meaningfulTitle;
+    if (title != null) return title;
+    final base = cwdBase;
+    final p = (lastPrompt ?? '').trim().split('\n').first.trim();
+    final tail = p.isNotEmpty
+        ? (p.characters.length > 40 ? '${p.characters.take(40)}…' : p)
+        : shortId;
+    return base.isEmpty ? tail : '$base · $tail';
+  }
 
   /// Sorts the list for the screen: blocked agents (awaiting a reply) on top,
   /// the rest by name. Keeps stability within groups.
@@ -71,7 +125,8 @@ class RelayAgent {
     final list = [...agents];
     list.sort((a, b) {
       if (a.isBlocked != b.isBlocked) return a.isBlocked ? -1 : 1;
-      return a.displayAgent.toLowerCase().compareTo(b.displayAgent.toLowerCase());
+      final c = a.displayAgent.toLowerCase().compareTo(b.displayAgent.toLowerCase());
+      return c != 0 ? c : a.id.compareTo(b.id);
     });
     return list;
   }
@@ -86,6 +141,8 @@ class RelayAgent {
       cwd: json['cwd'] as String?,
       focused: json['focused'] == true,
       workspaceId: (json['workspace_id'] ?? '').toString(),
+      terminalTitle:
+          (json['terminal_title_stripped'] ?? json['terminal_title']) as String?,
     );
   }
 
@@ -97,5 +154,6 @@ class RelayAgent {
         'agent_status': status,
         if (cwd != null) 'cwd': cwd,
         'focused': focused,
+        if (terminalTitle != null) 'terminal_title': terminalTitle,
       };
 }

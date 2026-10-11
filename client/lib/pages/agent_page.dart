@@ -311,7 +311,9 @@ class _AgentPageState extends State<AgentPage> {
           listenable: _store,
           builder: (context, _) {
             final live = _store.byId(_agent.id);
-            final name = live?.displayAgent ?? _agent.displayAgent;
+            final a = live ?? _agent;
+            final name =
+                '${a.primaryLabel(lastPrompt: _historyService.lastSync(a.id))} · ${a.displayAgent}';
             final status = live?.status ?? _agent.status;
             return Row(
               mainAxisSize: MainAxisSize.min,

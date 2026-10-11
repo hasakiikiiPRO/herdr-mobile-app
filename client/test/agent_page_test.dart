@@ -56,7 +56,7 @@ void main() {
     client.outputText = 'hello world\n';
     await pumpAgent(tester);
 
-    expect(find.text('codex'), findsOneWidget);
+    expect(find.textContaining('codex'), findsOneWidget);
     expect(find.text('blocked'), findsOneWidget);
     expect(find.text('hello world\n'), findsOneWidget);
   });
@@ -194,7 +194,7 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    expect(find.text('kimi'), findsOneWidget);
+    expect(find.textContaining('kimi'), findsOneWidget);
   });
 
   testWidgets('событие чужого агента не трогает экран', (tester) async {

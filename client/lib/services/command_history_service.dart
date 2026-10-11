@@ -14,6 +14,12 @@ class CommandHistoryService {
     return _prefs.getStringList('$_keyPrefix$agentId') ?? [];
   }
 
+  /// Last command sent to this agent (synchronous; null if none).
+  String? lastSync(String agentId) {
+    final l = _prefs.getStringList('$_keyPrefix$agentId');
+    return (l == null || l.isEmpty) ? null : l.last;
+  }
+
   /// Save command history for a specific agent
   Future<void> save(String agentId, List<String> commands) async {
     await _prefs.setStringList('$_keyPrefix$agentId', commands);

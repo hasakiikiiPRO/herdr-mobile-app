@@ -78,7 +78,36 @@ class _AnsiTerminalState extends State<AnsiTerminal> {
   /// the host pane width. On a narrow phone each rule soft-wraps into several
   /// rows of bare colored dashes, which looks like a stack of empty colored
   /// bars. Shrink the dash runs of such lines so they fit [cols].
+  static final RegExp _ruleOnly =
+      RegExp(r'^[\s─━═\-_─│┃╭╮╰╯┌┐└┘├┤┬┴┼╌╍┄┅╴╶╸╺]*$');
+  static final RegExp _dashChar = RegExp(r'[─━═\-_╌╍┄┅]');
+
+  /// Drops lines whose visible content is only box-drawing / dash characters
+  /// (editor borders, separators). They carry no information and on a phone
+  /// show up as stacks of empty colored bars. Their escape sequences are kept
+  /// (moved onto the next line) so color state stays consistent.
+  static String dropRuleLines(String text) {
+    final lines = text.split('\n');
+    final out = <String>[];
+    var pending = '';
+    for (final line in lines) {
+      final visible = line.replaceAll(_ansi, '').replaceAll('\r', '');
+      final isRule = visible.trim().isNotEmpty &&
+          _ruleOnly.hasMatch(visible) &&
+          _dashChar.allMatches(visible).length >= 3;
+      if (isRule) {
+        pending += _ansi.allMatches(line).map((m) => m.group(0)).join();
+        continue;
+      }
+      out.add(pending + line);
+      pending = '';
+    }
+    if (pending.isNotEmpty) out.add(pending);
+    return out.join('\n');
+  }
+
   static String fitRules(String text, int cols) {
+    text = dropRuleLines(text);
     if (cols <= 0) return text;
     final lines = text.split('\n');
     for (var i = 0; i < lines.length; i++) {
@@ -166,3 +195,7 @@ class _AnsiTerminalState extends State<AnsiTerminal> {
     );
   }
 }
+
+/// Public entry for the rule-line filter (used by tests).
+String dropTerminalRuleLines(String text) =>
+    _AnsiTerminalState.dropRuleLines(text);

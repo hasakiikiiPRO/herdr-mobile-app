@@ -7,6 +7,7 @@ import 'package:client/pages/agent_page.dart';
 import 'package:client/services/app_settings.dart';
 import 'package:client/widgets/ansi_terminal.dart';
 import 'package:flutter/material.dart';
+import 'package:client/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,7 +43,11 @@ void main() {
 
   Future<void> pumpAgent(WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(home: AgentPage(agent: agent)),
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: AgentPage(agent: agent)),
     );
     await tester.pumpAndSettle();
   }
@@ -60,6 +65,9 @@ void main() {
     client.outputText = 'shell\n';
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: AgentPage(
           agent: RelayAgent(
             id: 'w7:p1',
@@ -261,6 +269,9 @@ void main() {
     client.outputText = 'shell-out\n';
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: AgentPage(
           agent: RelayAgent(
             id: 'w7:p1',
@@ -327,7 +338,11 @@ void main() {
     await setupTestDependencies(client, config,
         prefsSeed: {AppSettings.kAutoScrollFollow: false});
     await tester.pumpWidget(
-      MaterialApp(home: AgentPage(agent: agent)),
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: AgentPage(agent: agent)),
     );
     await tester.pumpAndSettle();
 
@@ -352,6 +367,9 @@ void main() {
     // Push AgentPage as a nested route so Navigator.pop() works.
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: Scaffold(
           body: Builder(
             builder: (context) => Center(

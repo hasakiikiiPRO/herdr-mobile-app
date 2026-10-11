@@ -1,6 +1,7 @@
 import 'package:client/widgets/ansi_terminal.dart';
 import 'package:client/widgets/ansi_terminal_parser.dart';
 import 'package:flutter/material.dart';
+import 'package:client/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _base = TextStyle(fontSize: 12, color: Color(0xFFE0E0E0));
@@ -146,7 +147,11 @@ void main() {
     testWidgets('тот же текст возвращает тот же SelectableText (без репарса)',
         (tester) async {
       Future<void> pump(String text) => tester.pumpWidget(
-            MaterialApp(home: Scaffold(body: AnsiTerminal(text: text))),
+            MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: const Locale('en'),
+              home: Scaffold(body: AnsiTerminal(text: text))),
           );
 
       await pump('a\nb');
@@ -161,7 +166,11 @@ void main() {
 
     testWidgets('новый текст пересоздаёт SelectableText', (tester) async {
       Future<void> pump(String text) => tester.pumpWidget(
-            MaterialApp(home: Scaffold(body: AnsiTerminal(text: text))),
+            MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: const Locale('en'),
+              home: Scaffold(body: AnsiTerminal(text: text))),
           );
 
       await pump('a');
@@ -175,7 +184,10 @@ void main() {
 
     testWidgets('рендерит текст и ANSI-стили', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
           home: Scaffold(
             body: AnsiTerminal(text: '\x1b[31mred\x1b[0m plain'),
           ),

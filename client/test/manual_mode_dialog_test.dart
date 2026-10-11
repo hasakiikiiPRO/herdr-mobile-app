@@ -1,6 +1,7 @@
 import 'package:client/models/pair_config.dart';
 import 'package:client/widgets/manual_mode_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:client/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -22,6 +23,9 @@ void main() {
   }) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: Scaffold(
           body: Builder(
             builder: (context) => Center(

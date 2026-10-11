@@ -9,6 +9,7 @@ import 'package:client/pages/home_page.dart';
 import 'package:client/pages/settings_page.dart';
 import 'package:client/services/relay_client.dart';
 import 'package:flutter/material.dart';
+import 'package:client/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -60,6 +61,9 @@ void main() {
   }) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: HomePage(
           config: cfg ?? config,
           onRequestSwitch: onSwitch ?? () async {},
@@ -200,6 +204,9 @@ void main() {
         prefsSeed: {'settings_home_tab_index': 1});
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: HomePage(
           config: config,
           onRequestSwitch: () async {},
@@ -242,6 +249,9 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: HomePage(
           config: tailscaleConfig,
           onRequestSwitch: () async {},
@@ -280,6 +290,9 @@ void main() {
       // Re-pump with a recording callback to verify the flow.
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
           home: HomePage(
             config: config,
             onRequestSwitch: () async {},

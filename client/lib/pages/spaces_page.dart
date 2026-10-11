@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 
 import '../controllers/agents_store.dart';
 import '../controllers/session_controller.dart';
@@ -60,14 +61,14 @@ class _SpacesPageState extends State<SpacesPage> {
                     const SizedBox(height: 12),
                     FilledButton.tonal(
                       onPressed: _controller.refresh,
-                      child: const Text('Retry'),
+                      child: Text(context.l10n.retry),
                     ),
                   ],
                 ),
               ),
             ),
           AsyncData(:final data) when data.workspaces.isEmpty =>
-            const Center(child: Text('No workspaces')),
+            Center(child: Text(context.l10n.noWorkspaces)),
           AsyncData(:final data) => _WorkspaceList(
               session: data,
               store: _store,
@@ -113,7 +114,7 @@ class _WorkspaceList extends StatelessWidget {
               ),
             ),
             title: Text(ws.label.isEmpty ? ws.id : ws.label),
-            subtitle: Text('${panes.length} pane(s) · ${ws.id}'),
+            subtitle: Text(context.l10n.panesCount(panes.length, ws.id)),
             trailing: StatusChip(status: store.workspaceStatus(ws.id)),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
@@ -148,7 +149,7 @@ class WorkspacePage extends StatelessWidget {
         title: Text(workspace.label.isEmpty ? workspace.id : workspace.label),
       ),
       body: panes.isEmpty
-          ? const Center(child: Text('No panes in this workspace'))
+          ? Center(child: Text(context.l10n.noPanesInWorkspace))
           : ListenableBuilder(
               listenable: store,
               builder: (context, _) => ListView.separated(

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import '../l10n/app_localizations.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// Launch data of a notification tap that started the app (cold start).
@@ -48,12 +50,13 @@ class LocalNotificationsApi implements NotificationApi {
   LocalNotificationsApi([FlutterLocalNotificationsPlugin? plugin])
       : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
-  /// Channel for blocked-agent alerts (Android 8+).
-  static const AndroidNotificationChannel _blockedChannel =
+  /// Channel for blocked-agent alerts (Android 8+). Name/description follow
+  /// the current system locale via [AppLocalizations].
+  static AndroidNotificationChannel _blockedChannel(AppLocalizations l10n) =>
       AndroidNotificationChannel(
     'blocked_agents',
-    'Blocked agents',
-    description: 'Alerts when an agent needs your response',
+    l10n.notifChannelName,
+    description: l10n.blockedAgentAlertsSubtitle,
     importance: Importance.high,
   );
 
@@ -84,10 +87,13 @@ class LocalNotificationsApi implements NotificationApi {
           if (paneId != null) onTap(paneId);
         },
       );
+      final l10n = lookupAppLocalizations(
+        WidgetsBinding.instance.platformDispatcher.locale,
+      );
       await _plugin
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(_blockedChannel);
+          ?.createNotificationChannel(_blockedChannel(l10n));
     } catch (_) {
       // Plugin unavailable (widget tests, unsupported host): degrade to a
       // no-op so app flow is never blocked by notification setup.
@@ -149,18 +155,22 @@ class LocalNotificationsApi implements NotificationApi {
   @override
   Future<void> showBlocked(String paneId, String agentName) async {
     if (!_initialized) return; // init is a no-op on unsupported platforms
+    final l10n = lookupAppLocalizations(
+      WidgetsBinding.instance.platformDispatcher.locale,
+    );
+    final channel = _blockedChannel(l10n);
     await _plugin.show(
       // Deterministic 31-bit id derived from the pane id: unlike hashCode
       // (process- and run-unstable, possibly negative), FNV-1a is stable
       // across launches so re-showing replaces the stale notification.
       id: _paneNotificationId(paneId),
-      title: 'Agent blocked',
-      body: '$agentName is waiting for your response',
+      title: l10n.notifBlockedTitle,
+      body: l10n.notifBlockedBody(agentName),
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
-          _blockedChannel.id,
-          _blockedChannel.name,
-          channelDescription: _blockedChannel.description,
+          channel.id,
+          channel.name,
+          channelDescription: channel.description,
           importance: Importance.high,
           priority: Priority.high,
         ),

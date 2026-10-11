@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 
 import '../controllers/agents_store.dart';
 import '../controllers/modes_controller.dart';
@@ -154,18 +155,16 @@ class _HomePageState extends State<HomePage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Forget this device?'),
-        content: const Text(
-          'The saved pair will be removed. You can scan its QR again to reconnect.',
-        ),
+        title: Text(context.l10n.forgetThisDevice),
+        content: Text(context.l10n.forgetThisDeviceBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Forget'),
+            child: Text(context.l10n.forget),
           ),
         ],
       ),
@@ -179,7 +178,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Herdr Mobile'),
+        title: Text(context.l10n.appTitle),
         actions: [
           // Status-dependent cluster re-renders only when the connection
           // status changes (no whole-page setState on every event).
@@ -210,9 +209,9 @@ class _HomePageState extends State<HomePage> {
                       constraints: const BoxConstraints(maxWidth: 80),
                       child: Text(
                         switch (status) {
-                          RelayStatus.connected => 'online',
-                          RelayStatus.connecting => 'connecting…',
-                          RelayStatus.disconnected => 'offline',
+                          RelayStatus.connected => context.l10n.online,
+                          RelayStatus.connecting => context.l10n.connecting,
+                          RelayStatus.disconnected => context.l10n.offline,
                         },
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -229,7 +228,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: _repository.status.value == RelayStatus.connected
                 ? () => _store.refresh()
                 : null,
-            tooltip: 'Refresh',
+            tooltip: context.l10n.refresh,
           ),
           PopupMenuButton<String>(
             onSelected: (v) {
@@ -240,14 +239,14 @@ class _HomePageState extends State<HomePage> {
                   _confirmForget();
               }
             },
-            itemBuilder: (context) => const [
+            itemBuilder: (context) => [
               PopupMenuItem(
                 value: 'add',
-                child: Text('Add device…'),
+                child: Text(context.l10n.addDevice),
               ),
               PopupMenuItem(
                 value: 'forget',
-                child: Text('Forget device'),
+                child: Text(context.l10n.forgetDevice),
               ),
             ],
           ),
@@ -315,26 +314,26 @@ class _HomePageState extends State<HomePage> {
             _visitedTabs.add(i);
           });
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.space_dashboard_outlined),
-            selectedIcon: Icon(Icons.space_dashboard),
-            label: 'Spaces',
+            icon: const Icon(Icons.space_dashboard_outlined),
+            selectedIcon: const Icon(Icons.space_dashboard),
+            label: context.l10n.tabSpaces,
           ),
           NavigationDestination(
-            icon: Icon(Icons.smart_toy_outlined),
-            selectedIcon: Icon(Icons.smart_toy),
-            label: 'Agents',
+            icon: const Icon(Icons.smart_toy_outlined),
+            selectedIcon: const Icon(Icons.smart_toy),
+            label: context.l10n.tabAgents,
           ),
           NavigationDestination(
-            icon: Icon(Icons.play_circle_outline),
-            selectedIcon: Icon(Icons.play_circle),
-            label: 'Run',
+            icon: const Icon(Icons.play_circle_outline),
+            selectedIcon: const Icon(Icons.play_circle),
+            label: context.l10n.tabRun,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: context.l10n.tabSettings,
           ),
         ],
       ),
@@ -356,7 +355,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Icon(Icons.wifi_off, size: 48, color: theme.colorScheme.error),
             const SizedBox(height: 12),
-            Text('Cannot reach the relay', style: theme.textTheme.titleLarge),
+            Text(context.l10n.cannotReachRelay, style: theme.textTheme.titleLarge),
             const SizedBox(height: 4),
             Text(
               '${c.mode} · ${c.host}:${c.port}',
@@ -365,9 +364,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'The relay has not connected for a while. Try again, or switch '
-              'to another mode — e.g. Tailscale if you are away from the '
-              'local network.',
+              context.l10n.gateBody,
               style: theme.textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -375,24 +372,24 @@ class _HomePageState extends State<HomePage> {
             FilledButton.icon(
               onPressed: _dismissGate,
               icon: const Icon(Icons.refresh),
-              label: const Text('Try again'),
+              label: Text(context.l10n.tryAgain),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: _openModePicker,
               icon: const Icon(Icons.swap_horiz),
-              label: const Text('Change mode…'),
+              label: Text(context.l10n.changeMode),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: widget.onRequestSwitch,
               icon: const Icon(Icons.tune),
-              label: const Text('Connection settings'),
+              label: Text(context.l10n.connectionSettings),
             ),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => setState(() => _gateVisible = false),
-              child: const Text('Open app anyway'),
+              child: Text(context.l10n.openAppAnyway),
             ),
           ],
         ),
@@ -407,7 +404,7 @@ class _HomePageState extends State<HomePage> {
       onTap: _openModePicker,
       borderRadius: BorderRadius.circular(6),
       child: Tooltip(
-        message: 'Tap to switch connection mode',
+        message: context.l10n.tapToSwitchMode,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
@@ -467,7 +464,7 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(height: 8),
                       TextButton(
                           onPressed: _store.refresh,
-                          child: const Text('Retry')),
+                          child: Text(context.l10n.retry)),
                     ],
                   ),
                 ),
@@ -482,11 +479,10 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const Icon(Icons.terminal, size: 40, color: Colors.grey),
                       const SizedBox(height: 8),
-                      const Text('No agents found'),
+                      Text(context.l10n.noAgentsFound),
                       const SizedBox(height: 4),
                       Text(
-                        'Start an agent (e.g. `herdr codex`) on the computer '
-                        'or press Refresh.',
+                        context.l10n.noAgentsHint,
                         style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
                       ),

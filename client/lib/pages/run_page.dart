@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 
 import '../controllers/session_controller.dart';
 import '../core/service_locator.dart';
@@ -80,12 +81,11 @@ class _RunPageState extends State<RunPage> {
     final pane = _freePane;
     final name = _nameController.text.trim();
     if (pane == null) {
-      ToastService.showError(context,
-          'No free pane in this workspace — run an agent there first on the computer.');
+      ToastService.showError(context, context.l10n.noFreePaneRunFirst);
       return;
     }
     if (name.isEmpty) {
-      ToastService.showError(context, 'Enter an agent name');
+      ToastService.showError(context, context.l10n.enterAgentName);
       return;
     }
     setState(() => _starting = true);
@@ -93,7 +93,7 @@ class _RunPageState extends State<RunPage> {
       await _controller.startAgent(name, _kind, pane.id);
       if (mounted) {
         ToastService.showSuccess(
-            context, 'Started $name ($_kind) in ${pane.id}');
+            context, context.l10n.startedAgentInPane(name, _kind, pane.id));
         _nameController.clear();
       }
     } catch (e) {
@@ -123,17 +123,17 @@ class _RunPageState extends State<RunPage> {
                     const SizedBox(height: 12),
                     FilledButton.tonal(
                       onPressed: _controller.refresh,
-                      child: const Text('Retry'),
+                      child: Text(context.l10n.retry),
                     ),
                   ],
                 ),
               ),
             );
           case AsyncData(:final data) when data.workspaces.isEmpty:
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text('No workspaces — create one on the computer first'),
+                padding: const EdgeInsets.all(24),
+                child: Text(context.l10n.noWorkspacesCreateFirst),
               ),
             );
           case AsyncData(:final data):
@@ -141,13 +141,13 @@ class _RunPageState extends State<RunPage> {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Text('Run an agent', style: theme.textTheme.titleMedium),
+                Text(context.l10n.runAnAgent, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   initialValue: _kind,
-                  decoration: const InputDecoration(
-                    labelText: 'Agent kind',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.agentKind,
+                    border: const OutlineInputBorder(),
                   ),
                   items: [
                     for (final k in agentKinds)
@@ -158,9 +158,9 @@ class _RunPageState extends State<RunPage> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: _workspaceId,
-                  decoration: const InputDecoration(
-                    labelText: 'Workspace',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.workspace,
+                    border: const OutlineInputBorder(),
                   ),
                   items: [
                     for (final ws in workspaces)
@@ -177,17 +177,17 @@ class _RunPageState extends State<RunPage> {
                 const SizedBox(height: 12),
                 TextField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Agent name',
-                    hintText: 'codex-1',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.agentName,
+                    hintText: context.l10n.agentNameHint,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   _freePane == null
-                      ? 'No free pane in this workspace — all panes have agents.'
-                      : 'Will start in free pane ${_freePane!.id}',
+                      ? context.l10n.noFreePaneAllHaveAgents
+                      : context.l10n.willStartInFreePane(_freePane!.id),
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.outline),
                 ),
@@ -201,7 +201,7 @@ class _RunPageState extends State<RunPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.play_arrow),
-                  label: const Text('Start agent'),
+                  label: Text(context.l10n.startAgent),
                 ),
               ],
             );

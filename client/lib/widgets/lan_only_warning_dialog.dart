@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 
 import '../pages/help_page.dart';
 
@@ -37,7 +38,7 @@ class _LanOnlyWarningSheet extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Limited connectivity detected',
+                  context.l10n.limitedConnectivity,
                   style: theme.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.w600),
                 ),
@@ -46,13 +47,12 @@ class _LanOnlyWarningSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Your relay is only reachable via LAN (local WiFi). '
-            'When you leave home you won’t be able to connect unless:',
+            context.l10n.limitedConnectivityBody,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
-          Text('• Install Tailscale on both devices', style: theme.textTheme.bodyMedium),
-          Text('• Re-scan the QR code to save the Tailscale endpoint',
+          Text(context.l10n.installTailscaleBoth, style: theme.textTheme.bodyMedium),
+          Text(context.l10n.rescanQrTailscale,
               style: theme.textTheme.bodyMedium),
           const SizedBox(height: 20),
           Row(
@@ -66,12 +66,12 @@ class _LanOnlyWarningSheet extends StatelessWidget {
                     MaterialPageRoute<void>(builder: (_) => const HelpPage()),
                   );
                 },
-                child: const Text('Learn more'),
+                child: Text(context.l10n.learnMore),
               ),
               const SizedBox(width: 8),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Continue anyway'),
+                child: Text(context.l10n.continueAnyway),
               ),
             ],
           ),

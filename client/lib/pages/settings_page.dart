@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 
 import '../controllers/modes_controller.dart';
 import '../core/service_locator.dart';
@@ -93,7 +94,7 @@ class _SettingsPageState extends State<SettingsPage> {
         return ListView(
           padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
-            _header(context, 'Connection'),
+            _header(context, context.l10n.settingsConnection),
             ValueListenableBuilder<RelayStatus>(
               valueListenable: _repository.status,
               builder: (context, status, _) {
@@ -112,7 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             : Colors.grey,
                   ),
                   title: Text('${c.mode} · ${c.host}:${c.port}'),
-                  subtitle: Text(_statusLabel(status)),
+                  subtitle: Text(_statusLabel(context, status)),
                 );
               },
             ),
@@ -136,36 +137,32 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ListTile(
               leading: const Icon(Icons.tune),
-              title: const Text('More modes…'),
-              subtitle: const Text('Modes the relay advertises over /pair'),
+              title: Text(context.l10n.moreModes),
+              subtitle: Text(context.l10n.moreModesSubtitle),
               onTap: _openModePicker,
             ),
             ListTile(
               leading: const Icon(Icons.dns_outlined),
-              title: const Text('Connection settings…'),
-              subtitle: const Text(
-                'Switch profile, pair a device, forget this relay',
-              ),
+              title: Text(context.l10n.connectionSettingsEllipsis),
+              subtitle: Text(context.l10n.connectionSettingsSubtitle),
               onTap: widget.onRequestSwitch,
             ),
             const Divider(),
-            _header(context, 'Notifications'),
+            _header(context, context.l10n.settingsNotifications),
             SwitchListTile(
-              title: const Text('Blocked agent alerts'),
-              subtitle: const Text(
-                'Show a notification when an agent needs your response while '
-                'the app is in the background',
-              ),
+              title: Text(context.l10n.blockedAgentAlerts),
+              subtitle: Text(context.l10n.blockedAgentAlertsSubtitle),
               value: _settings.notificationsEnabled,
               onChanged: _setNotificationsEnabled,
             ),
             const Divider(),
-            _header(context, 'Terminal'),
+            _header(context, context.l10n.settingsTerminal),
             ListTile(
-              title: const Text('Terminal font size'),
+              title: Text(context.l10n.terminalFontSize),
               subtitle: Text(
-                'Default size for agent output '
-                '(${_settings.terminalFontSize.round()} pt)',
+                context.l10n.terminalFontSizeSubtitle(
+                  _settings.terminalFontSize.round(),
+                ),
               ),
             ),
             Padding(
@@ -182,19 +179,21 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             SwitchListTile(
-              title: const Text('Auto-follow terminal output'),
-              subtitle: const Text(
-                'Keep the terminal scrolled to the bottom as new output arrives',
-              ),
+              title: Text(context.l10n.autoFollowTerminal),
+              subtitle: Text(context.l10n.autoFollowTerminalSubtitle),
               value: _settings.autoScrollFollow,
               onChanged: _settings.setAutoScrollFollow,
             ),
             const Divider(),
-            _header(context, 'About'),
+            _header(context, context.l10n.settingsAbout),
             ListTile(
               leading: const Icon(Icons.help_outline),
-              title: const Text('Help & troubleshooting'),
+              title: Text(context.l10n.helpTroubleshooting),
               onTap: _openHelp,
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: Text(context.l10n.versionLabel('0.4.1')),
             ),
             const SizedBox(height: 24),
           ],
@@ -203,10 +202,10 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  String _statusLabel(RelayStatus status) => switch (status) {
-        RelayStatus.connected => 'online',
-        RelayStatus.connecting => 'connecting…',
-        RelayStatus.disconnected => 'offline',
+  String _statusLabel(BuildContext context, RelayStatus status) => switch (status) {
+        RelayStatus.connected => context.l10n.online,
+        RelayStatus.connecting => context.l10n.connecting,
+        RelayStatus.disconnected => context.l10n.offline,
       };
 
   Widget _header(BuildContext context, String title) {

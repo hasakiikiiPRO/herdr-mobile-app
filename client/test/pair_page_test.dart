@@ -3,6 +3,7 @@ import 'package:client/core/connection/mode_service.dart';
 import 'package:client/models/pair_config.dart';
 import 'package:client/pages/pair_page.dart';
 import 'package:flutter/material.dart';
+import 'package:client/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// PairPage: QR scanner + manual link entry. These tests cover the manual
@@ -34,6 +35,9 @@ void main() {
   }) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: PairPage(
           onPaired: onPaired ?? (_) async {},
           modesController: modesController,

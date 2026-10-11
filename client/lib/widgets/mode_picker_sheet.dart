@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 
 import '../controllers/modes_controller.dart';
 import '../core/connection/mode_service.dart';
@@ -91,7 +92,7 @@ class _ModePickerSheetState extends State<ModePickerSheet> {
     } on FormatException {
       if (mounted) {
         setState(() => _switching = false);
-        ToastService.showError(context, 'Invalid mode link from relay');
+        ToastService.showError(context, context.l10n.invalidModeLink);
       }
     } catch (e) {
       if (mounted) {
@@ -125,12 +126,12 @@ class _ModePickerSheetState extends State<ModePickerSheet> {
     final portRaw = _portController.text.trim();
     if (host.isEmpty) {
       ToastService.showError(
-          context, 'Enter the relay host (e.g. ${_hostHint})');
+          context, context.l10n.enterRelayHost(_hostHint));
       return;
     }
     final port = int.tryParse(portRaw) ?? PairConfig.defaultPort;
     if (port <= 0 || port > 65535) {
-      ToastService.showError(context, 'Invalid port: $portRaw');
+      ToastService.showError(context, context.l10n.invalidPort(portRaw));
       return;
     }
     setState(() => _switching = true);
@@ -177,12 +178,12 @@ class _ModePickerSheetState extends State<ModePickerSheet> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
-                  Text('Connection mode', style: theme.textTheme.titleMedium),
+                  Text(context.l10n.connectionMode, style: theme.textTheme.titleMedium),
                   const Spacer(),
                   if (loading || error != null)
                     TextButton(
                       onPressed: loading ? null : () => _load(force: true),
-                      child: const Text('Retry'),
+                      child: Text(context.l10n.retry),
                     ),
                 ],
               ),
@@ -211,7 +212,7 @@ class _ModePickerSheetState extends State<ModePickerSheet> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Text(
-                  'No modes available — relay unreachable?',
+                  context.l10n.noModesAvailable,
                   style: theme.textTheme.bodySmall,
                 ),
               )
@@ -231,7 +232,7 @@ class _ModePickerSheetState extends State<ModePickerSheet> {
               const Divider(height: 16),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-                child: Text('Saved modes for this relay',
+                child: Text(context.l10n.savedModesForRelay,
                     style: theme.textTheme.labelLarge),
               ),
               for (final entry in widget.config.endpoints.entries)
@@ -260,7 +261,7 @@ class _ModePickerSheetState extends State<ModePickerSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Relay unreachable? Connect manually',
+                  Text(context.l10n.relayUnreachableManual,
                       style: theme.textTheme.labelLarge),
                   const SizedBox(height: 8),
                   Row(
@@ -282,7 +283,7 @@ class _ModePickerSheetState extends State<ModePickerSheet> {
                           controller: _hostController,
                           enabled: !_switching,
                           decoration: InputDecoration(
-                            labelText: 'Host',
+                            labelText: context.l10n.host,
                             hintText: _hostHint,
                             isDense: true,
                             border: const OutlineInputBorder(),
@@ -296,10 +297,10 @@ class _ModePickerSheetState extends State<ModePickerSheet> {
                           controller: _portController,
                           enabled: !_switching,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'Port',
+                          decoration: InputDecoration(
+                            labelText: context.l10n.port,
                             isDense: true,
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                           ),
                         ),
                       ),
@@ -311,7 +312,7 @@ class _ModePickerSheetState extends State<ModePickerSheet> {
                     child: FilledButton.tonalIcon(
                       onPressed: _switching ? null : _connectManual,
                       icon: const Icon(Icons.link, size: 16),
-                      label: const Text('Connect'),
+                      label: Text(context.l10n.connect),
                     ),
                   ),
                 ],

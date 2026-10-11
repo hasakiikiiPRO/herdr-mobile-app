@@ -9,6 +9,7 @@ import 'package:client/services/config_store.dart';
 import 'package:client/services/notification_api.dart';
 import 'package:client/services/relay_client.dart';
 import 'package:flutter/material.dart';
+import 'package:client/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes/fake_notification_api.dart';
@@ -56,6 +57,9 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: Scaffold(
           body: Builder(
             builder: (context) => Center(

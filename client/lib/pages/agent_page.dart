@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 import 'package:flutter/services.dart';
 
 import '../controllers/agents_store.dart';
@@ -325,14 +326,14 @@ class _AgentPageState extends State<AgentPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.text_decrease),
-            tooltip: 'Smaller text',
+            tooltip: context.l10n.smallerText,
             onPressed: _terminalFontSize > AppSettings.kMinFontSize
                 ? () => _changeFontSize(-1)
                 : null,
           ),
           IconButton(
             icon: const Icon(Icons.text_increase),
-            tooltip: 'Larger text',
+            tooltip: context.l10n.largerText,
             onPressed: _terminalFontSize < AppSettings.kMaxFontSize
                 ? () => _changeFontSize(1)
                 : null,
@@ -340,7 +341,7 @@ class _AgentPageState extends State<AgentPage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loading ? null : () => _refresh(),
-            tooltip: 'Refresh output',
+            tooltip: context.l10n.refreshOutput,
           ),
         ],
       ),
@@ -361,7 +362,7 @@ class _AgentPageState extends State<AgentPage> {
     }
     return AnsiTerminal(
       controller: _scroll,
-      text: _output.isEmpty ? '(no output)' : _output,
+      text: _output.isEmpty ? context.l10n.noOutput : _output,
       style: AnsiTerminal.defaultStyle.copyWith(fontSize: _terminalFontSize),
     );
   }
@@ -382,7 +383,7 @@ class _AgentPageState extends State<AgentPage> {
               OutlinedButton.icon(
                 onPressed: () => _sendKeys(['C-c']),
                 icon: const Icon(Icons.stop, size: 16),
-                label: const Text('Ctrl-C'),
+                label: Text(context.l10n.ctrlC),
                 style: OutlinedButton.styleFrom(
                   visualDensity: VisualDensity.compact,
                   foregroundColor: Colors.red.shade700,
@@ -402,14 +403,14 @@ class _AgentPageState extends State<AgentPage> {
                   child: TextField(
                     controller: _input,
                     decoration: InputDecoration(
-                      hintText: 'Message agent…',
+                      hintText: context.l10n.messageAgent,
                       isDense: true,
                       border: const OutlineInputBorder(),
                       suffixIcon: (_historyIndex != null && _historyIndex! >= 0)
                           ? IconButton(
                               icon: const Icon(Icons.history, size: 18),
                               onPressed: _clearHistoryNavigation,
-                              tooltip: 'Clear history',
+                              tooltip: context.l10n.clearHistory,
                             )
                           : null,
                     ),
@@ -428,7 +429,7 @@ class _AgentPageState extends State<AgentPage> {
                       )
                     : const Icon(Icons.send),
                 onPressed: _sending ? null : _send,
-                tooltip: 'Send',
+                tooltip: context.l10n.send,
               ),
             ],
           ),

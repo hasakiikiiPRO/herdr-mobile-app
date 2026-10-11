@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../controllers/modes_controller.dart';
@@ -64,7 +65,7 @@ class _PairPageState extends State<PairPage> {
     } on FormatException catch (e) {
       if (mounted) ToastService.showError(context, e.message);
     } catch (e) {
-      if (mounted) ToastService.showError(context, 'Connection error: $e');
+      if (mounted) ToastService.showError(context, context.l10n.connectionError('$e'));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -100,13 +101,12 @@ class _PairPageState extends State<PairPage> {
     return showDialog<RelayModeInfo>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select connection mode'),
+        title: Text(context.l10n.selectConnectionMode),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'The relay is reachable through several networks. '
-              'Pick the one to use now — the others are saved too.',
+              context.l10n.selectConnectionModeBody,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 8),
@@ -137,14 +137,13 @@ class _PairPageState extends State<PairPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Connect to relay')),
+      appBar: AppBar(title: Text(context.l10n.connectToRelay)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             Text(
-              'Scan the QR code the relay shows on the computer '
-              '(command `relay pair --qr`), or paste the link manually.',
+              context.l10n.pairScanHint,
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
@@ -152,10 +151,10 @@ class _PairPageState extends State<PairPage> {
             const SizedBox(height: 24),
             TextField(
               controller: _linkController,
-              decoration: const InputDecoration(
-                labelText: 'Pair link',
-                hintText: 'herdrelay://pair?host=...&token=...',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.pairLink,
+                hintText: context.l10n.pairLinkHint,
+                border: const OutlineInputBorder(),
               ),
               keyboardType: TextInputType.url,
               onSubmitted: _connect,
@@ -172,7 +171,7 @@ class _PairPageState extends State<PairPage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.link),
-              label: const Text('Connect'),
+              label: Text(context.l10n.connect),
             ),
           ],
         ),
@@ -194,8 +193,7 @@ class _PairPageState extends State<PairPage> {
         onDetect: _onDetect,
         errorBuilder: (context, error) => Center(
           child: Text(
-            'Camera unavailable (${error.errorCode.name}). '
-            'Paste the link manually.',
+            context.l10n.cameraUnavailable(error.errorCode.name),
             style: const TextStyle(color: Colors.white),
             textAlign: TextAlign.center,
           ),

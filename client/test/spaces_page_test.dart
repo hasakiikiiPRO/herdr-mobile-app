@@ -6,6 +6,7 @@ import 'package:client/pages/agent_page.dart';
 import 'package:client/pages/run_page.dart';
 import 'package:client/pages/spaces_page.dart';
 import 'package:flutter/material.dart';
+import 'package:client/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes/fake_relay_client.dart';
@@ -64,7 +65,11 @@ void main() {
   group('SpacesPage', () {
     testWidgets('показывает workspace из session', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: SpacesPage())),
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: Scaffold(body: SpacesPage())),
       );
       await tester.pumpAndSettle();
 
@@ -75,7 +80,11 @@ void main() {
 
     testWidgets('тап по workspace открывает его panes', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: SpacesPage())),
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: Scaffold(body: SpacesPage())),
       );
       await tester.pumpAndSettle();
 
@@ -92,7 +101,11 @@ void main() {
     testWidgets('тап по pane открывает терминал AgentPage', (tester) async {
       client.outputText = 'hello\n';
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: SpacesPage())),
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: Scaffold(body: SpacesPage())),
       );
       await tester.pumpAndSettle();
 
@@ -109,7 +122,11 @@ void main() {
     testWidgets('запускает агента в свободный pane выбранного workspace',
         (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: RunPage())),
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: Scaffold(body: RunPage())),
       );
       await tester.pumpAndSettle();
 
@@ -132,7 +149,11 @@ void main() {
         ],
       );
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: RunPage())),
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: Scaffold(body: RunPage())),
       );
       await tester.pumpAndSettle();
 
@@ -160,7 +181,11 @@ void main() {
       }),
     ];
     await tester.pumpWidget(
-      const MaterialApp(home: Scaffold(body: SpacesPage())),
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: Scaffold(body: SpacesPage())),
     );
     await tester.pumpAndSettle();
 
@@ -185,7 +210,11 @@ void main() {
   testWidgets('pane.updated перечитывает session (структурные изменения)',
       (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: Scaffold(body: SpacesPage())),
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: Scaffold(body: SpacesPage())),
     );
     await tester.pumpAndSettle();
     final before = client.sessionCalls;

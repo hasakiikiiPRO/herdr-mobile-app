@@ -1,0 +1,292 @@
+{
+  "@@locale": "en",
+  "appTitle": "Herdr Mobile",
+  "tabSpaces": "Spaces",
+  "tabAgents": "Agents",
+  "tabRun": "Run",
+  "tabSettings": "Settings",
+  "online": "online",
+  "connecting": "connecting…",
+  "offline": "offline",
+  "refresh": "Refresh",
+  "addDevice": "Add device…",
+  "forgetDevice": "Forget device",
+  "forgetThisDevice": "Forget this device?",
+  "forgetThisDeviceBody": "The saved pair will be removed. You can scan its QR again to reconnect.",
+  "forgetThisDeviceBodyNamed": "{displayName} ({host}:{port}) will be removed and the app returns to the scanner.",
+  "@forgetThisDeviceBodyNamed": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      },
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "forget": "Forget",
+  "retry": "Retry",
+  "cannotReachRelay": "Cannot reach the relay",
+  "gateBody": "The relay has not connected for a while. Try again, or switch to another mode — e.g. Tailscale if you are away from the local network.",
+  "tryAgain": "Try again",
+  "changeMode": "Change mode…",
+  "connectionSettings": "Connection settings",
+  "openAppAnyway": "Open app anyway",
+  "tapToSwitchMode": "Tap to switch connection mode",
+  "noAgentsFound": "No agents found",
+  "noAgentsHint": "Start an agent (e.g. `herdr codex`) on the computer or press Refresh.",
+  "connectToRelay": "Connect to relay",
+  "pairScanHint": "Scan the QR code the relay shows on the computer (command `relay pair --qr`), or paste the link manually.",
+  "pairLink": "Pair link",
+  "pairLinkHint": "herdrelay://pair?host=...&token=...",
+  "connect": "Connect",
+  "cameraUnavailable": "Camera unavailable ({code}). Paste the link manually.",
+  "@cameraUnavailable": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "selectConnectionMode": "Select connection mode",
+  "selectConnectionModeBody": "The relay is reachable through several networks. Pick the one to use now — the others are saved too.",
+  "connectionError": "Connection error: {error}",
+  "@connectionError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "help": "Help",
+  "connectionIssues": "Connection issues",
+  "helpAwayQuestion": "Can't connect when away from home?",
+  "helpAwayAnswer": "The relay is probably reachable only on your local WiFi (LAN mode). Install Tailscale on the relay machine and on this device, then re-scan the QR code — all reachable modes are saved automatically, and the app switches to Tailscale when LAN goes dark.",
+  "connectionModes": "Connection modes",
+  "modeLanTitle": "LAN",
+  "modeLanBody": "Direct connection on the same WiFi / local network. Fastest, but stops working when either device leaves home.",
+  "modeTailscaleTitle": "Tailscale",
+  "modeTailscaleBody": "Secure tunnel that works from anywhere. Both devices need the Tailscale app and must be on the same tailnet.",
+  "modeFunnelTitle": "Funnel",
+  "modeFunnelBody": "Public HTTPS URL exposed through Tailscale — reachable from anywhere without Tailscale installed. Relay must enable funnel (`tailscale funnel 8375`).",
+  "helpQuestion": "Q: {question}",
+  "@helpQuestion": {
+    "placeholders": {
+      "question": {
+        "type": "String"
+      }
+    }
+  },
+  "helpAnswer": "A: {answer}",
+  "@helpAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsConnection": "Connection",
+  "moreModes": "More modes…",
+  "moreModesSubtitle": "Modes the relay advertises over /pair",
+  "connectionSettingsEllipsis": "Connection settings…",
+  "connectionSettingsSubtitle": "Switch profile, pair a device, forget this relay",
+  "settingsNotifications": "Notifications",
+  "blockedAgentAlerts": "Blocked agent alerts",
+  "blockedAgentAlertsSubtitle": "Show a notification when an agent needs your response while the app is in the background",
+  "settingsTerminal": "Terminal",
+  "terminalFontSize": "Terminal font size",
+  "terminalFontSizeSubtitle": "Default size for agent output ({pt} pt)",
+  "@terminalFontSizeSubtitle": {
+    "placeholders": {
+      "pt": {
+        "type": "int"
+      }
+    }
+  },
+  "autoFollowTerminal": "Auto-follow terminal output",
+  "autoFollowTerminalSubtitle": "Keep the terminal scrolled to the bottom as new output arrives",
+  "settingsAbout": "About",
+  "helpTroubleshooting": "Help & troubleshooting",
+  "connection": "Connection",
+  "device": "Device",
+  "onlyReachableLan": "Only reachable on local WiFi",
+  "tipEnableTailscale": "Tip: enable Tailscale on both devices for remote access",
+  "profileId": "id: {id}",
+  "@profileId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "connectionStatus": "Connection status",
+  "statusConnected": "Connected",
+  "statusConnecting": "Connecting…",
+  "statusNoClient": "No client",
+  "statusDisconnected": "Disconnected",
+  "test": "Test",
+  "relayNotReachable": "Relay not reachable (healthz failed)",
+  "checkOk": "OK · {count} agent(s) · {ms}ms",
+  "@checkOk": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "connectionMode": "Connection mode",
+  "refreshModes": "Refresh modes",
+  "savedModesForRelay": "Saved modes for this relay",
+  "noModesAvailable": "No modes available — relay unreachable?",
+  "switchModeManually": "Switch mode manually",
+  "savedDevices": "Saved devices",
+  "noSavedDevices": "No saved devices yet",
+  "pairAddDevice": "Pair / add device",
+  "switchedToMode": "Switched to {mode}",
+  "@switchedToMode": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "pairSaved": "Pair saved",
+  "noWorkspaces": "No workspaces",
+  "panesCount": "{count} pane(s) · {id}",
+  "@panesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "noPanesInWorkspace": "No panes in this workspace",
+  "runAnAgent": "Run an agent",
+  "agentKind": "Agent kind",
+  "workspace": "Workspace",
+  "agentName": "Agent name",
+  "agentNameHint": "codex-1",
+  "noFreePaneAllHaveAgents": "No free pane in this workspace — all panes have agents.",
+  "willStartInFreePane": "Will start in free pane {paneId}",
+  "@willStartInFreePane": {
+    "placeholders": {
+      "paneId": {
+        "type": "String"
+      }
+    }
+  },
+  "startAgent": "Start agent",
+  "noFreePaneRunFirst": "No free pane in this workspace — run an agent there first on the computer.",
+  "enterAgentName": "Enter an agent name",
+  "startedAgentInPane": "Started {name} ({kind}) in {paneId}",
+  "@startedAgentInPane": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      },
+      "paneId": {
+        "type": "String"
+      }
+    }
+  },
+  "noWorkspacesCreateFirst": "No workspaces — create one on the computer first",
+  "smallerText": "Smaller text",
+  "largerText": "Larger text",
+  "refreshOutput": "Refresh output",
+  "noOutput": "(no output)",
+  "ctrlC": "Ctrl-C",
+  "messageAgent": "Message agent…",
+  "clearHistory": "Clear history",
+  "send": "Send",
+  "limitedConnectivity": "Limited connectivity detected",
+  "limitedConnectivityBody": "Your relay is only reachable via LAN (local WiFi). When you leave home you won't be able to connect unless:",
+  "installTailscaleBoth": "• Install Tailscale on both devices",
+  "rescanQrTailscale": "• Re-scan the QR code to save the Tailscale endpoint",
+  "learnMore": "Learn more",
+  "continueAnyway": "Continue anyway",
+  "manualConnection": "Manual Connection",
+  "manualConnectionHint": "Use this when automatic mode switching doesn't work.",
+  "mode": "Mode",
+  "host": "Host",
+  "hostHintExample": "e.g. mac.tailnet.ts.net",
+  "port": "Port",
+  "testConnection": "Test connection",
+  "enterHostFirst": "Enter a host first",
+  "reachableHttp": "Reachable (HTTP {statusCode})",
+  "@reachableHttp": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "notReachable": "Not reachable — {error}",
+  "@notReachable": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidModeLink": "Invalid mode link from relay",
+  "enterRelayHost": "Enter the relay host (e.g. {hint})",
+  "@enterRelayHost": {
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidPort": "Invalid port: {port}",
+  "@invalidPort": {
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "relayUnreachableManual": "Relay unreachable? Connect manually",
+  "errorNotConnected": "Cannot reach relay. Check your network connection.",
+  "errorTimeout": "Relay did not respond in time. Try again.",
+  "errorUnauthorized": "Invalid token. Please scan the QR code again.",
+  "fallbackSwitched": "Relay unreachable — switched to {mode} automatically",
+  "@fallbackSwitched": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "notifChannelName": "Blocked agents",
+  "notifBlockedTitle": "Agent blocked",
+  "notifBlockedBody": "{agentName} is waiting for your response",
+  "@notifBlockedBody": {
+    "placeholders": {
+      "agentName": {
+        "type": "String"
+      }
+    }
+  },
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "forgetThisDeviceButton": "Forget this device"
+}

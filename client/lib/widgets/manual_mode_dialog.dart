@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/pair_config.dart';
@@ -58,7 +59,7 @@ class _ManualModeDialogState extends State<_ManualModeDialog> {
     if (host.isEmpty) {
       setState(() {
         _reachable = false;
-        _checkResult = 'Enter a host first';
+        _checkResult = context.l10n.enterHostFirst;
       });
       return;
     }
@@ -76,13 +77,13 @@ class _ManualModeDialogState extends State<_ManualModeDialog> {
       if (!mounted) return;
       setState(() {
         _reachable = true;
-        _checkResult = 'Reachable (HTTP ${res.statusCode})';
+        _checkResult = context.l10n.reachableHttp(res.statusCode);
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _reachable = false;
-        _checkResult = 'Not reachable — $e';
+        _checkResult = context.l10n.notReachable('$e');
       });
     } finally {
       if (widget.httpClient == null) client.close();
@@ -101,22 +102,22 @@ class _ManualModeDialogState extends State<_ManualModeDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Manual Connection'),
+      title: Text(context.l10n.manualConnection),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Use this when automatic mode switching doesn’t work.',
+              context.l10n.manualConnectionHint,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: _mode,
-              decoration: const InputDecoration(
-                labelText: 'Mode',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.mode,
+                border: const OutlineInputBorder(),
               ),
               items: [
                 for (final m in PairConfig.knownModes)
@@ -135,8 +136,8 @@ class _ManualModeDialogState extends State<_ManualModeDialog> {
             TextField(
               controller: _hostController,
               decoration: InputDecoration(
-                labelText: 'Host',
-                hintText: 'e.g. mac.tailnet.ts.net',
+                labelText: context.l10n.host,
+                hintText: context.l10n.hostHintExample,
                 border: const OutlineInputBorder(),
                 suffixIcon: switch (_reachable) {
                   true => const Icon(Icons.check_circle, color: Colors.green),
@@ -152,9 +153,9 @@ class _ManualModeDialogState extends State<_ManualModeDialog> {
             const SizedBox(height: 12),
             TextField(
               controller: _portController,
-              decoration: const InputDecoration(
-                labelText: 'Port',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.port,
+                border: const OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
               onChanged: (_) => setState(() {
@@ -174,7 +175,7 @@ class _ManualModeDialogState extends State<_ManualModeDialog> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.check),
-                  label: const Text('Test connection'),
+                  label: Text(context.l10n.testConnection),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -197,11 +198,11 @@ class _ManualModeDialogState extends State<_ManualModeDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.cancel),
         ),
         FilledButton(
           onPressed: _connect,
-          child: const Text('Connect'),
+          child: Text(context.l10n.connect),
         ),
       ],
     );

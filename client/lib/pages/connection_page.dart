@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../l10n/l10n_ext.dart';
 
 import '../controllers/app_session_controller.dart';
 import '../controllers/modes_controller.dart';
@@ -144,7 +145,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
       if (!healthy) {
         setState(() {
           _checkOk = false;
-          _checkResult = 'Relay not reachable (healthz failed)';
+          _checkResult = context.l10n.relayNotReachable;
         });
         return;
       }
@@ -152,7 +153,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
       if (!mounted || gen != _checkGeneration) return;
       setState(() {
         _checkOk = true;
-        _checkResult = 'OK · ${agents.length} agent(s) · ${ms}ms';
+        _checkResult = context.l10n.checkOk(agents.length, ms);
       });
     } catch (e) {
       if (!mounted || gen != _checkGeneration) return;
@@ -172,7 +173,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
       final config = _modesController.switchMode(widget.config, mode);
       await widget.onSwitch(config);
       if (mounted) {
-        ToastService.showSuccess(context, 'Switched to ${mode.mode}');
+        ToastService.showSuccess(context, context.l10n.switchedToMode(mode.mode));
       }
     } catch (e) {
       if (mounted) ToastService.showError(context, e);
@@ -189,7 +190,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
     try {
       await widget.onSwitch(cfg);
       if (mounted) {
-        ToastService.showSuccess(context, 'Switched to $mode');
+        ToastService.showSuccess(context, context.l10n.switchedToMode(mode));
       }
     } catch (e) {
       if (mounted) ToastService.showError(context, e);
@@ -220,7 +221,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
     try {
       await widget.onLink(link);
       if (mounted) {
-        ToastService.showSuccess(context, 'Pair saved');
+        ToastService.showSuccess(context, context.l10n.pairSaved);
         Navigator.of(context).pop();
       }
     } on FormatException catch (e) {
@@ -236,19 +237,22 @@ class _ConnectionPageState extends State<ConnectionPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Forget this device?'),
+        title: Text(context.l10n.forgetThisDevice),
         content: Text(
-          '${widget.config.displayName} (${widget.config.host}:${widget.config.port}) '
-          'will be removed and the app returns to the scanner.',
+          context.l10n.forgetThisDeviceBodyNamed(
+            widget.config.displayName,
+            widget.config.host,
+            widget.config.port,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Forget'),
+            child: Text(context.l10n.forget),
           ),
         ],
       ),
@@ -262,7 +266,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Connection')),
+      appBar: AppBar(title: Text(context.l10n.connection)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -293,7 +297,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Device', style: theme.textTheme.labelLarge),
+            Text(context.l10n.device, style: theme.textTheme.labelLarge),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -305,11 +309,11 @@ class _ConnectionPageState extends State<ConnectionPage> {
                 ),
                 Chip(label: Text(c.mode)),
                 if (lanOnly)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
                     child: Tooltip(
-                      message: 'Only reachable on local WiFi',
-                      child: Icon(Icons.warning_amber,
+                      message: context.l10n.onlyReachableLan,
+                      child: const Icon(Icons.warning_amber,
                           color: Colors.orange, size: 20),
                     ),
                   ),
@@ -321,7 +325,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
             if (lanOnly) ...[
               const SizedBox(height: 8),
               Text(
-                'Tip: enable Tailscale on both devices for remote access',
+                context.l10n.tipEnableTailscale,
                 style: theme.textTheme.bodySmall
                     ?.copyWith(color: Colors.orange),
               ),
@@ -333,7 +337,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
                   .copyWith(fontFamily: 'monospace', color: theme.colorScheme.outline),
             ),
             const SizedBox(height: 4),
-            Text('id: ${c.profileKey}',
+            Text(context.l10n.profileId(c.profileKey),
                 style: theme.textTheme.bodySmall!
                     .copyWith(color: theme.colorScheme.outline)),
           ],
@@ -345,11 +349,12 @@ class _ConnectionPageState extends State<ConnectionPage> {
   Widget _statusCard(ThemeData theme) {
     final client = _client;
     final status = client?.status.value;
+    final l10n = context.l10n;
     final (label, color, icon) = switch (status) {
-      RelayStatus.connected => ('Connected', Colors.green, Icons.check_circle),
-      RelayStatus.connecting => ('Connecting…', Colors.orange, Icons.sync),
-      null => ('No client', Colors.grey, Icons.help_outline),
-      _ => ('Disconnected', Colors.red, Icons.error_outline),
+      RelayStatus.connected => (l10n.statusConnected, Colors.green, Icons.check_circle),
+      RelayStatus.connecting => (l10n.statusConnecting, Colors.orange, Icons.sync),
+      null => (l10n.statusNoClient, Colors.grey, Icons.help_outline),
+      _ => (l10n.statusDisconnected, Colors.red, Icons.error_outline),
     };
     return Card(
       child: Padding(
@@ -357,7 +362,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Connection status', style: theme.textTheme.labelLarge),
+            Text(context.l10n.connectionStatus, style: theme.textTheme.labelLarge),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -374,7 +379,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.play_arrow),
-                  label: const Text('Test'),
+                  label: Text(context.l10n.test),
                 ),
               ],
             ),
@@ -417,11 +422,11 @@ class _ConnectionPageState extends State<ConnectionPage> {
           children: [
             Row(
               children: [
-                Text('Connection mode', style: theme.textTheme.labelLarge),
+                Text(context.l10n.connectionMode, style: theme.textTheme.labelLarge),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.refresh),
-                  tooltip: 'Refresh modes',
+                  tooltip: context.l10n.refreshModes,
                   onPressed: () => _loadModes(force: true),
                 ),
               ],
@@ -451,7 +456,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
               // Offline quick-switch: /pair failed, but the profile remembers
               // endpoints for this relay — switch without any network.
               ...[
-                Text('Saved modes for this relay',
+                Text(context.l10n.savedModesForRelay,
                     style: theme.textTheme.bodySmall),
                 const SizedBox(height: 4),
                 for (final entry in saved.entries)
@@ -471,13 +476,13 @@ class _ConnectionPageState extends State<ConnectionPage> {
                   ),
               ]
             else
-              Text('No modes available — relay unreachable?',
+              Text(context.l10n.noModesAvailable,
                   style: theme.textTheme.bodySmall),
             const SizedBox(height: 4),
             TextButton.icon(
               onPressed: _openManualMode,
               icon: const Icon(Icons.tune),
-              label: const Text('Switch mode manually'),
+              label: Text(context.l10n.switchModeManually),
             ),
           ],
         ),
@@ -492,10 +497,10 @@ class _ConnectionPageState extends State<ConnectionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Saved devices', style: theme.textTheme.labelLarge),
+            Text(context.l10n.savedDevices, style: theme.textTheme.labelLarge),
             const SizedBox(height: 4),
             if (_profiles.isEmpty)
-              Text('No saved devices yet', style: theme.textTheme.bodySmall)
+              Text(context.l10n.noSavedDevices, style: theme.textTheme.bodySmall)
             else
               for (final p in _profiles)
                 ListTile(
@@ -516,7 +521,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
                       : () => _switchProfile(p),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete_outline),
-                    tooltip: 'Forget',
+                    tooltip: context.l10n.forget,
                     onPressed: () => _forgetProfile(p),
                   ),
                 ),
@@ -533,14 +538,14 @@ class _ConnectionPageState extends State<ConnectionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Pair / add device', style: theme.textTheme.labelLarge),
+            Text(context.l10n.pairAddDevice, style: theme.textTheme.labelLarge),
             const SizedBox(height: 8),
             TextField(
               controller: _linkController,
-              decoration: const InputDecoration(
-                labelText: 'Pair link',
-                hintText: 'herdrelay://pair?host=...&token=...',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.pairLink,
+                hintText: context.l10n.pairLinkHint,
+                border: const OutlineInputBorder(),
                 isDense: true,
               ),
               keyboardType: TextInputType.url,
@@ -554,7 +559,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
                       ? null
                       : () => _applyLink(_linkController.text.trim()),
                   icon: const Icon(Icons.link),
-                  label: const Text('Connect'),
+                  label: Text(context.l10n.connect),
                 ),
                 const Spacer(),
                 TextButton.icon(
@@ -563,7 +568,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
                     foregroundColor: theme.colorScheme.error,
                   ),
                   icon: const Icon(Icons.delete),
-                  label: const Text('Forget this device'),
+                  label: Text(context.l10n.forgetThisDeviceButton),
                 ),
               ],
             ),

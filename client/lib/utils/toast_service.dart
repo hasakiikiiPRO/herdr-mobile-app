@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 import '../services/relay_client.dart';
 
@@ -48,20 +49,21 @@ class ToastService {
   }
 
   static void showError(BuildContext context, Object error) {
-    show(context, _formatError(error), type: ToastType.error);
+    show(context, _formatError(context, error), type: ToastType.error);
   }
 
   static void showSuccess(BuildContext context, String message) {
     show(context, message, type: ToastType.success);
   }
 
-  static String _formatError(Object error) {
+  static String _formatError(BuildContext context, Object error) {
     // Relay protocol errors map to actionable advice instead of a raw code.
+    final l10n = AppLocalizations.of(context);
     if (error is RelayException) {
       return switch (error.code) {
-        'not_connected' => 'Cannot reach relay. Check your network connection.',
-        'timeout' => 'Relay did not respond in time. Try again.',
-        'unauthorized' => 'Invalid token. Please scan the QR code again.',
+        'not_connected' => l10n.errorNotConnected,
+        'timeout' => l10n.errorTimeout,
+        'unauthorized' => l10n.errorUnauthorized,
         _ => error.message.isEmpty ? error.code : error.message,
       };
     }

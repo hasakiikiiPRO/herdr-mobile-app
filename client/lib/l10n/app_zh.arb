@@ -1,0 +1,292 @@
+{
+  "@@locale": "zh",
+  "appTitle": "Herdr Mobile",
+  "tabSpaces": "工作区",
+  "tabAgents": "助手",
+  "tabRun": "运行",
+  "tabSettings": "设置",
+  "online": "在线",
+  "connecting": "连接中…",
+  "offline": "离线",
+  "refresh": "刷新",
+  "addDevice": "添加设备…",
+  "forgetDevice": "忘记设备",
+  "forgetThisDevice": "忘记此设备？",
+  "forgetThisDeviceBody": "已保存的配对将被移除。你可以再次扫描二维码重新连接。",
+  "forgetThisDeviceBodyNamed": "{displayName}（{host}:{port}）将被移除，应用将返回扫码界面。",
+  "@forgetThisDeviceBodyNamed": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      },
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "cancel": "取消",
+  "forget": "忘记",
+  "retry": "重试",
+  "cannotReachRelay": "无法连接中转",
+  "gateBody": "中转已有一段时间未能连接。请重试，或切换到其他模式——例如不在本地网络时使用 Tailscale。",
+  "tryAgain": "再试一次",
+  "changeMode": "更换模式…",
+  "connectionSettings": "连接设置",
+  "openAppAnyway": "仍然打开应用",
+  "tapToSwitchMode": "点按以切换连接模式",
+  "noAgentsFound": "未找到助手",
+  "noAgentsHint": "在电脑上启动助手（例如 `herdr codex`），或点按刷新。",
+  "connectToRelay": "连接到中转",
+  "pairScanHint": "扫描电脑上中转显示的二维码（命令 `relay pair --qr`），或手动粘贴链接。",
+  "pairLink": "配对链接",
+  "pairLinkHint": "herdrelay://pair?host=...&token=...",
+  "connect": "连接",
+  "cameraUnavailable": "相机不可用（{code}）。请手动粘贴链接。",
+  "@cameraUnavailable": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "selectConnectionMode": "选择连接模式",
+  "selectConnectionModeBody": "中转可通过多个网络访问。请选择当前要用的模式——其他模式也会一并保存。",
+  "connectionError": "连接错误：{error}",
+  "@connectionError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "help": "帮助",
+  "connectionIssues": "连接问题",
+  "helpAwayQuestion": "出门在外连不上？",
+  "helpAwayAnswer": "中转很可能只能在本地 WiFi（LAN 模式）下访问。请在中转机器和本机都安装 Tailscale，然后重新扫描二维码——所有可用模式会自动保存，LAN 不可用时应用会切换到 Tailscale。",
+  "connectionModes": "连接模式",
+  "modeLanTitle": "LAN",
+  "modeLanBody": "同一 WiFi / 局域网直连。最快，但任一设备离开家就无法使用。",
+  "modeTailscaleTitle": "Tailscale",
+  "modeTailscaleBody": "可从任何地方使用的安全隧道。两台设备都需要 Tailscale，并加入同一 tailnet。",
+  "modeFunnelTitle": "Funnel",
+  "modeFunnelBody": "通过 Tailscale 暴露的公共 HTTPS 地址——无需安装 Tailscale 也能从任何地方访问。中转需启用 funnel（`tailscale funnel 8375`）。",
+  "helpQuestion": "问：{question}",
+  "@helpQuestion": {
+    "placeholders": {
+      "question": {
+        "type": "String"
+      }
+    }
+  },
+  "helpAnswer": "答：{answer}",
+  "@helpAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsConnection": "连接",
+  "moreModes": "更多模式…",
+  "moreModesSubtitle": "中转通过 /pair 公布的模式",
+  "connectionSettingsEllipsis": "连接设置…",
+  "connectionSettingsSubtitle": "切换配置、配对设备、忘记此中转",
+  "settingsNotifications": "通知",
+  "blockedAgentAlerts": "助手阻塞提醒",
+  "blockedAgentAlertsSubtitle": "应用在后台时，若助手需要你回复则显示通知",
+  "settingsTerminal": "终端",
+  "terminalFontSize": "终端字号",
+  "terminalFontSizeSubtitle": "助手输出的默认字号（{pt} pt）",
+  "@terminalFontSizeSubtitle": {
+    "placeholders": {
+      "pt": {
+        "type": "int"
+      }
+    }
+  },
+  "autoFollowTerminal": "自动跟随终端输出",
+  "autoFollowTerminalSubtitle": "有新输出时保持终端滚动到底部",
+  "settingsAbout": "关于",
+  "helpTroubleshooting": "帮助与排查",
+  "connection": "连接",
+  "device": "设备",
+  "onlyReachableLan": "仅可在本地 WiFi 访问",
+  "tipEnableTailscale": "提示：两台设备都启用 Tailscale 以便远程访问",
+  "profileId": "id: {id}",
+  "@profileId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "connectionStatus": "连接状态",
+  "statusConnected": "已连接",
+  "statusConnecting": "连接中…",
+  "statusNoClient": "无客户端",
+  "statusDisconnected": "已断开",
+  "test": "测试",
+  "relayNotReachable": "中转不可达（healthz 失败）",
+  "checkOk": "正常 · {count} 个助手 · {ms}ms",
+  "@checkOk": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "connectionMode": "连接模式",
+  "refreshModes": "刷新模式",
+  "savedModesForRelay": "此中转已保存的模式",
+  "noModesAvailable": "暂无可用模式 — 中转不可达？",
+  "switchModeManually": "手动切换模式",
+  "savedDevices": "已保存的设备",
+  "noSavedDevices": "还没有已保存的设备",
+  "pairAddDevice": "配对 / 添加设备",
+  "switchedToMode": "已切换到 {mode}",
+  "@switchedToMode": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "pairSaved": "配对已保存",
+  "noWorkspaces": "暂无工作区",
+  "panesCount": "{count} 个窗格 · {id}",
+  "@panesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "noPanesInWorkspace": "此工作区没有窗格",
+  "runAnAgent": "运行助手",
+  "agentKind": "助手类型",
+  "workspace": "工作区",
+  "agentName": "助手名称",
+  "agentNameHint": "codex-1",
+  "noFreePaneAllHaveAgents": "此工作区没有空闲窗格 — 所有窗格都已有助手。",
+  "willStartInFreePane": "将在空闲窗格 {paneId} 中启动",
+  "@willStartInFreePane": {
+    "placeholders": {
+      "paneId": {
+        "type": "String"
+      }
+    }
+  },
+  "startAgent": "启动助手",
+  "noFreePaneRunFirst": "此工作区没有空闲窗格 — 请先在电脑上运行一个助手。",
+  "enterAgentName": "请输入助手名称",
+  "startedAgentInPane": "已在 {paneId} 启动 {name}（{kind}）",
+  "@startedAgentInPane": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      },
+      "paneId": {
+        "type": "String"
+      }
+    }
+  },
+  "noWorkspacesCreateFirst": "暂无工作区 — 请先在电脑上创建",
+  "smallerText": "缩小文字",
+  "largerText": "放大文字",
+  "refreshOutput": "刷新输出",
+  "noOutput": "（无输出）",
+  "ctrlC": "Ctrl-C",
+  "messageAgent": "向助手发消息…",
+  "clearHistory": "清除历史",
+  "send": "发送",
+  "limitedConnectivity": "检测到连接能力有限",
+  "limitedConnectivityBody": "你的中转目前只能通过 LAN（本地 WiFi）访问。离开家后将无法连接，除非：",
+  "installTailscaleBoth": "• 在两台设备上都安装 Tailscale",
+  "rescanQrTailscale": "• 重新扫描二维码以保存 Tailscale 端点",
+  "learnMore": "了解更多",
+  "continueAnyway": "仍然继续",
+  "manualConnection": "手动连接",
+  "manualConnectionHint": "在自动模式切换无效时使用。",
+  "mode": "模式",
+  "host": "主机",
+  "hostHintExample": "例如 mac.tailnet.ts.net",
+  "port": "端口",
+  "testConnection": "测试连接",
+  "enterHostFirst": "请先输入主机",
+  "reachableHttp": "可达（HTTP {statusCode}）",
+  "@reachableHttp": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "notReachable": "不可达 — {error}",
+  "@notReachable": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidModeLink": "中转返回的模式链接无效",
+  "enterRelayHost": "请输入中转主机（例如 {hint}）",
+  "@enterRelayHost": {
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidPort": "无效端口：{port}",
+  "@invalidPort": {
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "relayUnreachableManual": "中转不可达？手动连接",
+  "errorNotConnected": "无法连接中转。请检查网络连接。",
+  "errorTimeout": "中转未及时响应。请重试。",
+  "errorUnauthorized": "令牌无效。请重新扫描二维码。",
+  "fallbackSwitched": "中转不可达 — 已自动切换到 {mode}",
+  "@fallbackSwitched": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "notifChannelName": "阻塞的助手",
+  "notifBlockedTitle": "助手已阻塞",
+  "notifBlockedBody": "{agentName} 正在等待你的回复",
+  "@notifBlockedBody": {
+    "placeholders": {
+      "agentName": {
+        "type": "String"
+      }
+    }
+  },
+  "versionLabel": "版本 {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "forgetThisDeviceButton": "忘记此设备"
+}

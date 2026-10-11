@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'controllers/agents_store.dart';
+import 'l10n/app_localizations.dart';
+import 'l10n/l10n_ext.dart';
 import 'controllers/app_session_controller.dart';
 import 'core/service_locator.dart';
 import 'models/pair_config.dart';
@@ -148,7 +150,7 @@ class _HerdrMobileAppState extends State<HerdrMobileApp> {
     if (nav != null) {
       ScaffoldMessenger.of(nav).showSnackBar(
         SnackBar(
-          content: Text('Relay unreachable — switched to ${config.mode} automatically'),
+          content: Text(nav.l10n.fallbackSwitched(config.mode)),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -246,6 +248,23 @@ class _HerdrMobileAppState extends State<HerdrMobileApp> {
       navigatorKey: _navKey,
       title: 'Herdr Mobile',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localeResolutionCallback: (locale, supported) {
+        if (locale == null) return supported.first;
+        for (final l in supported) {
+          if (l.languageCode == locale.languageCode &&
+              (l.countryCode == null ||
+                  l.countryCode!.isEmpty ||
+                  l.countryCode == locale.countryCode)) {
+            return l;
+          }
+        }
+        for (final l in supported) {
+          if (l.languageCode == locale.languageCode) return l;
+        }
+        return supported.first; // English fallback
+      },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.teal,

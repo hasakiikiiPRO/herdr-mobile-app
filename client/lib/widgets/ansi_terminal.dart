@@ -69,8 +69,72 @@ class _AnsiTerminalState extends State<AnsiTerminal> {
   TextStyle? _cacheStyle;
   SelectableText? _cacheSelectable;
 
+  int? _cacheCols;
+
+  static final RegExp _ansi = RegExp(r'\x1B\[[0-?]*[ -/]*[@-~]|\x1B\][^\x07\x1B]*(\x07|\x1B\\)|\x1B.');
+  static final RegExp _ruleRun = RegExp(r'[─━═\-_]{4,}');
+
+  /// Remote TUIs (pi, claude, ...) draw horizontal rules / editor borders at
+  /// the host pane width. On a narrow phone each rule soft-wraps into several
+  /// rows of bare colored dashes, which looks like a stack of empty colored
+  /// bars. Shrink the dash runs of such lines so they fit [cols].
+  static String fitRules(String text, int cols) {
+    if (cols <= 0) return text;
+    final lines = text.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      final line = lines[i];
+      final visible = line.replaceAll(_ansi, '').replaceAll('\r', '');
+      var excess = visible.runes.length - cols;
+      if (excess <= 0) continue;
+      final runs = _ruleRun.allMatches(line).toList();
+      final ruleChars = runs.fold<int>(0, (a, m) => a + m.end - m.start);
+      if (ruleChars < excess) continue; // real content too long; let it wrap
+      final buf = StringBuffer();
+      var last = 0;
+      // trim from the longest runs first
+      runs.sort((a, b) => (b.end - b.start).compareTo(a.end - a.start));
+      final cut = <int, int>{};
+      for (final m in runs) {
+        if (excess <= 0) break;
+        final len = m.end - m.start;
+        final c = excess < len - 1 ? excess : len - 1;
+        cut[m.start] = c;
+        excess -= c;
+      }
+      runs.sort((a, b) => a.start.compareTo(b.start));
+      for (final m in runs) {
+        buf.write(line.substring(last, m.start));
+        buf.write(line.substring(m.start, m.end - (cut[m.start] ?? 0)));
+        last = m.end;
+      }
+      buf.write(line.substring(last));
+      lines[i] = buf.toString();
+    }
+    return lines.join('\n');
+  }
+
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final base0 = widget.style ??
+          (Theme.of(context).brightness == Brightness.light
+              ? AnsiTerminal.lightStyle
+              : AnsiTerminal.defaultStyle);
+      final tp = TextPainter(
+        text: TextSpan(text: '─' * 10, style: base0),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final charW = tp.width / 10;
+      final inner = constraints.maxWidth -
+          widget.padding.resolve(TextDirection.ltr).horizontal;
+      final cols = (constraints.maxWidth.isFinite && charW > 0)
+          ? (inner / charW).floor()
+          : 0;
+      return _build(context, cols);
+    });
+  }
+
+  Widget _build(BuildContext context, int cols) {
     final theme = Theme.of(context);
     // The default style is a const; make the memoization key theme-aware so a
     // light/dark switch re-parses with readable colors instead of reusing the
@@ -79,8 +143,11 @@ class _AnsiTerminalState extends State<AnsiTerminal> {
         (theme.brightness == Brightness.light
             ? AnsiTerminal.lightStyle
             : AnsiTerminal.defaultStyle);
-    if (widget.text != _cacheText || base != _cacheStyle) {
-      final spans = AnsiTerminalParser(widget.text, baseStyle: base).parse();
+    if (widget.text != _cacheText || base != _cacheStyle || cols != _cacheCols) {
+      final spans =
+          AnsiTerminalParser(fitRules(widget.text, cols), baseStyle: base)
+              .parse();
+      _cacheCols = cols;
       _cacheText = widget.text;
       _cacheStyle = base;
       _cacheSelectable = SelectableText.rich(

@@ -463,6 +463,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get forgetThisDeviceButton => '忘记此设备';
+
+  @override
+  String get tapToSwitchDevice => '点按切换设备';
+
+  @override
+  String get deviceOnline => '在线';
+
+  @override
+  String get deviceOffline => '离线';
+
+  @override
+  String get deviceUnknown => '未知';
+
+  @override
+  String get addDeviceChip => '添加';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -924,4 +939,19 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get forgetThisDeviceButton => '忘记此设备';
+
+  @override
+  String get tapToSwitchDevice => '点按切换设备';
+
+  @override
+  String get deviceOnline => '在线';
+
+  @override
+  String get deviceOffline => '离线';
+
+  @override
+  String get deviceUnknown => '未知';
+
+  @override
+  String get addDeviceChip => '添加';
 }

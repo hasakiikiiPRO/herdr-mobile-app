@@ -5,6 +5,15 @@ All notable changes to Herdr Mobile project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] - 2026-10-12
+
+### Added
+- **Device switcher bar**: persistent chip bar at the top of Home (all tabs) lists every saved relay (e.g. `hasakiikii`, `hasakiikiiPRO`). Tap a chip to switch the active profile and reconnect immediately — no Settings trip for day-to-day switching.
+- AppBar always shows the current device `displayName`; Settings still handles pair/forget.
+
+### Changed
+- Version bump to 0.4.4.
+
 ## [0.4.3] - 2026-10-11
 
 ### Fixed

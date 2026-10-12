@@ -288,5 +288,10 @@
       }
     }
   },
-  "forgetThisDeviceButton": "Forget this device"
+  "forgetThisDeviceButton": "Forget this device",
+  "tapToSwitchDevice": "Tap to switch device",
+  "deviceOnline": "Online",
+  "deviceOffline": "Offline",
+  "deviceUnknown": "Unknown",
+  "addDeviceChip": "Add"
 }

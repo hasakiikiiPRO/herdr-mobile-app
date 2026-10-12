@@ -481,4 +481,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forgetThisDeviceButton => 'Forget this device';
+
+  @override
+  String get tapToSwitchDevice => 'Tap to switch device';
+
+  @override
+  String get deviceOnline => 'Online';
+
+  @override
+  String get deviceOffline => 'Offline';
+
+  @override
+  String get deviceUnknown => 'Unknown';
+
+  @override
+  String get addDeviceChip => 'Add';
 }

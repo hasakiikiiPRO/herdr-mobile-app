@@ -193,7 +193,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: Text(context.l10n.versionLabel('0.4.1')),
+              title: Text(context.l10n.versionLabel('0.4.4')),
             ),
             const SizedBox(height: 24),
           ],

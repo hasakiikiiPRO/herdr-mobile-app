@@ -288,5 +288,10 @@
       }
     }
   },
-  "forgetThisDeviceButton": "忘记此设备"
+  "forgetThisDeviceButton": "忘记此设备",
+  "tapToSwitchDevice": "点按切换设备",
+  "deviceOnline": "在线",
+  "deviceOffline": "离线",
+  "deviceUnknown": "未知",
+  "addDeviceChip": "添加"
 }

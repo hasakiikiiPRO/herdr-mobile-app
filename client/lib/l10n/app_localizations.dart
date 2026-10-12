@@ -926,6 +926,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Forget this device'**
   String get forgetThisDeviceButton;
+
+  /// No description provided for @tapToSwitchDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to switch device'**
+  String get tapToSwitchDevice;
+
+  /// No description provided for @deviceOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get deviceOnline;
+
+  /// No description provided for @deviceOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get deviceOffline;
+
+  /// No description provided for @deviceUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get deviceUnknown;
+
+  /// No description provided for @addDeviceChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get addDeviceChip;
 }
 
 class _AppLocalizationsDelegate

@@ -303,6 +303,7 @@ class _HerdrMobileAppState extends State<HerdrMobileApp> {
           onAddDevice: _showAddDevice,
           onForgetDevice: _forgetActive,
           onModeSelected: _switchTo,
+          onSwitchDevice: _switchTo,
         );
       },
     );

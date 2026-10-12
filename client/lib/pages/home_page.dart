@@ -14,6 +14,7 @@ import '../services/relay_client.dart';
 import '../services/command_history_service.dart';
 import '../utils/async_value.dart';
 import '../widgets/mode_picker_sheet.dart';
+import '../widgets/device_switcher_bar.dart';
 import '../widgets/status_chip.dart';
 import 'agent_page.dart';
 import 'run_page.dart';
@@ -29,8 +30,10 @@ class HomePage extends StatefulWidget {
     required this.onAddDevice,
     required this.onForgetDevice,
     required this.onModeSelected,
+    required this.onSwitchDevice,
     this.modesController,
     this.gateTimeout = const Duration(seconds: 10),
+    this.reachabilityProbe,
   });
 
   final PairConfig config;
@@ -49,8 +52,15 @@ class HomePage extends StatefulWidget {
   /// [PairConfig] parsed from the mode's link; the parent saves and reconnects.
   final Future<void> Function(PairConfig config) onModeSelected;
 
+  /// Switch the active paired device (another saved profile) and reconnect.
+  /// Used by the top [DeviceSwitcherBar] — day-to-day switching without Settings.
+  final Future<void> Function(PairConfig config) onSwitchDevice;
+
   /// Injectable for tests; defaults to the global [ModesController].
   final ModesController? modesController;
+
+  /// Optional reachability probe for inactive device chips (tests inject a stub).
+  final Future<bool> Function(PairConfig config)? reachabilityProbe;
 
   /// How long the connection may stay not-connected before the unreachable-
   /// relay gate replaces the tab body (injectable for tests).
@@ -179,7 +189,22 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.l10n.appTitle),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.config.displayName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              context.l10n.appTitle,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
         actions: [
           // Status-dependent cluster re-renders only when the connection
           // status changes (no whole-page setState on every event).
@@ -260,36 +285,49 @@ class _HomePageState extends State<HomePage> {
         top: false,
         child: Stack(
           children: [
-            IndexedStack(
-              index: _tabIndex,
+            Column(
               children: [
-                // Tab order matches the NavigationBar: 0 Spaces, 1 Agents, 2 Run.
-                // Unvisited tabs stay as placeholders so no data is fetched until
-                // the user actually opens them (lazy init).
-                if (_visitedTabs.contains(0))
-                  const SpacesPage()
-                else
-                  const SizedBox.shrink(),
-                if (_visitedTabs.contains(1))
-                  RefreshIndicator(
-                    onRefresh: _store.refresh,
-                    child: _buildBody(),
-                  )
-                else
-                  const SizedBox.shrink(),
-                if (_visitedTabs.contains(2))
-                  const RunPage()
-                else
-                  const SizedBox.shrink(),
-                if (_visitedTabs.contains(3))
-                  SettingsPage(
-                    config: widget.config,
-                    modesController: widget.modesController,
-                    onModeSelected: widget.onModeSelected,
-                    onRequestSwitch: widget.onRequestSwitch,
-                  )
-                else
-                  const SizedBox.shrink(),
+                DeviceSwitcherBar(
+                  activeConfig: widget.config,
+                  activeStatus: _repository.status,
+                  onSwitch: widget.onSwitchDevice,
+                  onAddDevice: widget.onAddDevice,
+                  reachabilityProbe: widget.reachabilityProbe,
+                ),
+                Expanded(
+                  child: IndexedStack(
+                    index: _tabIndex,
+                    children: [
+                      // Tab order matches the NavigationBar: 0 Spaces, 1 Agents, 2 Run.
+                      // Unvisited tabs stay as placeholders so no data is fetched until
+                      // the user actually opens them (lazy init).
+                      if (_visitedTabs.contains(0))
+                        const SpacesPage()
+                      else
+                        const SizedBox.shrink(),
+                      if (_visitedTabs.contains(1))
+                        RefreshIndicator(
+                          onRefresh: _store.refresh,
+                          child: _buildBody(),
+                        )
+                      else
+                        const SizedBox.shrink(),
+                      if (_visitedTabs.contains(2))
+                        const RunPage()
+                      else
+                        const SizedBox.shrink(),
+                      if (_visitedTabs.contains(3))
+                        SettingsPage(
+                          config: widget.config,
+                          modesController: widget.modesController,
+                          onModeSelected: widget.onModeSelected,
+                          onRequestSwitch: widget.onRequestSwitch,
+                        )
+                      else
+                        const SizedBox.shrink(),
+                    ],
+                  ),
+                ),
               ],
             ),
             if (_gateVisible)

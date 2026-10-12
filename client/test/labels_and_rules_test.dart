@@ -11,8 +11,11 @@ void main() {
     expect(out.contains('\x1B[31m'), isTrue);
   });
 
-  RelayAgent a(String title, {String agent = 'pi'}) => RelayAgent.fromJson({
-        'pane_id': 'w4:p27', 'agent': agent, 'cwd': '/home/u/cc',
+  RelayAgent a(String title, {String agent = 'pi', String? cwd}) =>
+      RelayAgent.fromJson({
+        'pane_id': 'w4:p27',
+        'agent': agent,
+        'cwd': cwd ?? '/home/u/cc',
         'terminal_title': title,
       });
 
@@ -21,5 +24,27 @@ void main() {
     expect(a('π - cc').primaryLabel(lastPrompt: 'fix bug\nmore'), 'cc · fix bug');
     expect(a('u@host: ~/cc').primaryLabel(), 'cc · p27');
     expect(a('✳ GNOME 顶栏消失', agent: 'claude').primaryLabel(), 'GNOME 顶栏消失');
+  });
+
+  test('folderHint used when cwd missing; never bare agent name', () {
+    final noCwd = RelayAgent.fromJson({
+      'pane_id': 'w4:p27',
+      'agent': 'pi',
+      'terminal_title': 'π - cc',
+    });
+    // Folder taken from `π - cc` title when cwd is missing.
+    expect(noCwd.primaryLabel(), 'cc · p27');
+    expect(noCwd.primaryLabel(folderHint: 'CC'), 'cc · p27');
+    expect(noCwd.secondaryLabel('idle'), 'pi · idle');
+  });
+
+  test('primary is never just the agent name', () {
+    // Even if somehow title collapses, primary stays distinct.
+    final bare = RelayAgent.fromJson({
+      'pane_id': 'w4:p2C',
+      'agent': 'claude',
+    });
+    expect(bare.primaryLabel(), isNot('claude'));
+    expect(bare.primaryLabel(folderHint: 'CC'), 'CC · p2C');
   });
 }

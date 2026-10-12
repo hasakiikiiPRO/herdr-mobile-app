@@ -83,6 +83,21 @@ class RelayAgent {
     return i < 0 ? c : c.substring(i + 1);
   }
 
+  /// Folder segment from a generic agent title such as `π - cc` / `pi - cc`.
+  String get _folderFromGenericTitle {
+    final t = (terminalTitle ?? '').trim();
+    if (t.isEmpty) return '';
+    final m = RegExp(r'^(.+?)\s*[-–—:]\s*(.+)$').firstMatch(t);
+    if (m == null) return '';
+    final l = m.group(1)!.trim().toLowerCase();
+    final r = m.group(2)!.trim();
+    if ({agent.toLowerCase(), 'π', 'pi'}.contains(l) &&
+        RegExp(r'^[\w.-]+$').hasMatch(r)) {
+      return r;
+    }
+    return '';
+  }
+
   /// The terminal title when it actually says something about this session
   /// (claude sets it to the conversation topic). Generic titles such as
   /// `π - cc`, `pi`, `user@host: ~/cc` or the cwd name return null.
@@ -98,6 +113,9 @@ class RelayAgent {
     final m = RegExp(r'^(.+?)\s*[-–—:]\s*(.+)$').firstMatch(low);
     if (m != null) {
       final l = m.group(1)!, r = m.group(2)!;
+      // `π - cc` / `pi - project` / `{agent} - folder` is default agent chrome,
+      // not a per-session topic — even when cwd is unknown.
+      if ({a, 'π', 'pi'}.contains(l)) return null;
       final generic = {a, 'π', 'pi', base, ''};
       if (generic.contains(l) && (generic.contains(r) || r == cwd?.toLowerCase())) {
         return null;
@@ -107,16 +125,39 @@ class RelayAgent {
   }
 
   /// Distinct primary label for a row: meaningful terminal title, else
-  /// "cwd · last prompt", else "cwd · pane id".
-  String primaryLabel({String? lastPrompt}) {
+  /// "folder · last prompt", else "folder · pane id". Never the bare agent
+  /// name — that collides when many panes share `pi` / `claude`.
+  ///
+  /// [folderHint] (e.g. workspace label) is used when [cwd] is missing.
+  String primaryLabel({String? lastPrompt, String? folderHint}) {
+    // Plain terminals keep the full pane id — there is no agent name to collide.
+    if (isPlainTerminal) return id;
     final title = meaningfulTitle;
     if (title != null) return title;
-    final base = cwdBase;
+    final hint = (folderHint ?? '').trim();
+    final fromTitle = _folderFromGenericTitle;
+    final base = cwdBase.isNotEmpty
+        ? cwdBase
+        : (fromTitle.isNotEmpty ? fromTitle : hint);
     final p = (lastPrompt ?? '').trim().split('\n').first.trim();
     final tail = p.isNotEmpty
         ? (p.characters.length > 40 ? '${p.characters.take(40)}…' : p)
         : shortId;
-    return base.isEmpty ? tail : '$base · $tail';
+    final label = base.isEmpty ? tail : '$base · $tail';
+    // Guard: never surface just the agent name as the primary title.
+    if (agent.isNotEmpty && label.toLowerCase() == agent.toLowerCase()) {
+      return shortId;
+    }
+    return label;
+  }
+
+  /// Secondary line for list tiles: "agent · status" (or pane id for plain
+  /// terminals).
+  String secondaryLabel(String status) {
+    if (isPlainTerminal || agent.isEmpty) {
+      return '$id · $status';
+    }
+    return '$displayAgent · $status';
   }
 
   /// Sorts the list for the screen: blocked agents (awaiting a reply) on top,

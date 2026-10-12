@@ -33,6 +33,7 @@ void main() {
         tabId: 'wH:t1',
         agent: 'kimi',
         status: 'working',
+        cwd: '/home/u/cc',
       ),
       RelayPane(
         id: 'wH:p9',
@@ -91,8 +92,9 @@ void main() {
       await tester.tap(find.text('herdr_relay'));
       await tester.pumpAndSettle();
 
-      // WorkspacePage: agent pane and plain terminal both visible.
-      expect(find.text('kimi'), findsOneWidget);
+      // WorkspacePage: primary is folder · paneId, not bare agent name.
+      expect(find.text('cc · p8'), findsOneWidget);
+      expect(find.text('kimi · working'), findsOneWidget);
       expect(find.text('wH:p9'), findsOneWidget);
       // The other workspace's pane is not listed.
       expect(find.text('w7:p1'), findsNothing);
@@ -111,7 +113,7 @@ void main() {
 
       await tester.tap(find.text('herdr_relay'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('kimi'));
+      await tester.tap(find.text('cc · p8'));
       await tester.pumpAndSettle();
 
       expect(find.byType(AgentPage), findsOneWidget);

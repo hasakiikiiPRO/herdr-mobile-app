@@ -578,8 +578,7 @@ class _AgentTile extends StatelessWidget {
         ],
       ),
       subtitle: Text(
-        [agent.displayAgent, agent.id, if ((agent.cwd ?? '').isNotEmpty) agent.cwd!]
-            .join('  ·  '),
+        agent.secondaryLabel(agent.status),
         style: theme.textTheme.bodySmall,
         overflow: TextOverflow.ellipsis,
       ),

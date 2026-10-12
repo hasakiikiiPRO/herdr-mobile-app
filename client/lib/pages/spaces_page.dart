@@ -7,6 +7,7 @@ import '../core/service_locator.dart';
 import '../models/relay_agent.dart';
 import '../models/relay_session.dart';
 import '../utils/async_value.dart';
+import '../services/command_history_service.dart';
 import '../widgets/status_chip.dart';
 import 'agent_page.dart';
 
@@ -159,6 +160,31 @@ class WorkspacePage extends StatelessWidget {
                   final pane = panes[i];
                   final isAgent = pane.isAgentPane;
                   final status = store.statusOf(pane.id) ?? pane.status;
+                  final live = store.byId(pane.id);
+                  final agent = live != null
+                      ? live.copyWith(
+                          status: status,
+                          cwd: live.cwd ?? pane.cwd,
+                          isPlainTerminal: !isAgent,
+                        )
+                      : RelayAgent(
+                          id: pane.id,
+                          agent: pane.agent.isEmpty ? pane.id : pane.agent,
+                          status: status,
+                          cwd: pane.cwd,
+                          workspaceId: pane.workspaceId,
+                          isPlainTerminal: !isAgent,
+                        );
+                  final folderHint =
+                      workspace.label.isEmpty ? null : workspace.label;
+                  final lastPrompt =
+                      getIt.isRegistered<CommandHistoryService>()
+                          ? getIt<CommandHistoryService>().lastSync(pane.id)
+                          : null;
+                  final primary = agent.primaryLabel(
+                    lastPrompt: lastPrompt,
+                    folderHint: folderHint,
+                  );
                   return ListTile(
                     leading: Icon(
                       isAgent ? Icons.smart_toy : Icons.terminal,
@@ -166,18 +192,10 @@ class WorkspacePage extends StatelessWidget {
                           ? theme.colorScheme.primary
                           : theme.colorScheme.outline,
                     ),
-                    title: Text(pane.agent.isEmpty ? pane.id : pane.agent),
-                    subtitle: Text('${pane.id} · $status'),
+                    title: Text(primary, overflow: TextOverflow.ellipsis),
+                    subtitle: Text(agent.secondaryLabel(status)),
                     trailing: StatusChip(status: status),
                     onTap: () {
-                      final agent = RelayAgent(
-                        id: pane.id,
-                        agent: pane.agent.isEmpty ? pane.id : pane.agent,
-                        status: status,
-                        cwd: pane.cwd,
-                        workspaceId: pane.workspaceId,
-                        isPlainTerminal: !isAgent,
-                      );
                       Navigator.of(context).push(
                         MaterialPageRoute<void>(
                           builder: (_) => AgentPage(agent: agent),

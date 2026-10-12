@@ -5,6 +5,12 @@ All notable changes to Herdr Mobile project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2026-10-11
+
+### Fixed
+- Mobile pane list now uses Herdr tab titles (`tabs[].label` → `tab_label`) as the primary label (e.g. `test`, `8`, `18`) instead of colliding `pi` / `cc · paneId` names.
+- Relay enriches agents/panes with `tab_label` from the session snapshot tabs list.
+
 ## [0.4.0] - 2026-09-05
 
 ### Added

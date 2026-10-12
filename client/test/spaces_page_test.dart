@@ -34,6 +34,7 @@ void main() {
         agent: 'kimi',
         status: 'working',
         cwd: '/home/u/cc',
+        tabLabel: 'test',
       ),
       RelayPane(
         id: 'wH:p9',
@@ -92,8 +93,8 @@ void main() {
       await tester.tap(find.text('herdr_relay'));
       await tester.pumpAndSettle();
 
-      // WorkspacePage: primary is folder · paneId, not bare agent name.
-      expect(find.text('cc · p8'), findsOneWidget);
+      // WorkspacePage: primary is Herdr tab title (tab_label).
+      expect(find.text('test'), findsOneWidget);
       expect(find.text('kimi · working'), findsOneWidget);
       expect(find.text('wH:p9'), findsOneWidget);
       // The other workspace's pane is not listed.
@@ -113,7 +114,7 @@ void main() {
 
       await tester.tap(find.text('herdr_relay'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('cc · p8'));
+      await tester.tap(find.text('test'));
       await tester.pumpAndSettle();
 
       expect(find.byType(AgentPage), findsOneWidget);

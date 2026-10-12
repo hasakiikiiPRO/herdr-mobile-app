@@ -56,7 +56,9 @@ func (r *CLIRepository) Snapshot() (*domain.Snapshot, error) {
 	if err := json.Unmarshal(out, &env); err != nil {
 		return nil, fmt.Errorf("parse snapshot: %w", err)
 	}
-	return &env.Result.Snapshot, nil
+	snap := &env.Result.Snapshot
+	snap.EnrichTabLabels()
+	return snap, nil
 }
 
 // StartAgent launches an agent of the given kind into an existing pane:

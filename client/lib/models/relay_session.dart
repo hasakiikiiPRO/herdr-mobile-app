@@ -98,6 +98,7 @@ class RelayPane {
     this.agent = '',
     this.status = 'unknown',
     this.cwd,
+    this.tabLabel,
   });
 
   final String id;
@@ -109,16 +110,25 @@ class RelayPane {
   final String status;
   final String? cwd;
 
+  /// Herdr UI tab title (e.g. "test", "8"), forwarded as `tab_label`.
+  final String? tabLabel;
+
   bool get isAgentPane => agent.isNotEmpty;
 
-  factory RelayPane.fromJson(Map<String, dynamic> json) => RelayPane(
-        id: (json['pane_id'] ?? '').toString(),
-        workspaceId: (json['workspace_id'] ?? '').toString(),
-        tabId: (json['tab_id'] ?? '').toString(),
-        agent: (json['agent'] ?? '').toString(),
-        status: (json['agent_status'] ?? 'unknown').toString(),
-        cwd: json['cwd'] as String?,
-      );
+  factory RelayPane.fromJson(Map<String, dynamic> json) {
+    final rawTab = json['tab_label'];
+    return RelayPane(
+      id: (json['pane_id'] ?? '').toString(),
+      workspaceId: (json['workspace_id'] ?? '').toString(),
+      tabId: (json['tab_id'] ?? '').toString(),
+      agent: (json['agent'] ?? '').toString(),
+      status: (json['agent_status'] ?? 'unknown').toString(),
+      cwd: json['cwd'] as String?,
+      tabLabel: rawTab == null || '$rawTab'.trim().isEmpty
+          ? null
+          : '$rawTab'.trim(),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'pane_id': id,
@@ -127,5 +137,6 @@ class RelayPane {
         'agent': agent,
         'agent_status': status,
         if (cwd != null) 'cwd': cwd,
+        if (tabLabel != null) 'tab_label': tabLabel,
       };
 }

@@ -166,6 +166,7 @@ class WorkspacePage extends StatelessWidget {
                           status: status,
                           cwd: live.cwd ?? pane.cwd,
                           isPlainTerminal: !isAgent,
+                          tabLabel: live.tabLabel ?? pane.tabLabel,
                         )
                       : RelayAgent(
                           id: pane.id,
@@ -174,6 +175,7 @@ class WorkspacePage extends StatelessWidget {
                           cwd: pane.cwd,
                           workspaceId: pane.workspaceId,
                           isPlainTerminal: !isAgent,
+                          tabLabel: pane.tabLabel,
                         );
                   final folderHint =
                       workspace.label.isEmpty ? null : workspace.label;

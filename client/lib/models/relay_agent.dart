@@ -17,10 +17,15 @@ class RelayAgent {
     this.workspaceId = '',
     this.isPlainTerminal = false,
     this.terminalTitle,
+    this.tabLabel,
   });
 
   /// OSC terminal title reported by herdr (ANSI/emoji-stripped when available).
   final String? terminalTitle;
+
+  /// Herdr UI tab title (e.g. "test", "8") from snapshot tabs[].label,
+  /// forwarded by the relay as `tab_label`.
+  final String? tabLabel;
 
   /// pane_id is the only valid target for agent operations.
   final String id;
@@ -57,6 +62,7 @@ class RelayAgent {
     String? workspaceId,
     bool? isPlainTerminal,
     String? terminalTitle,
+    String? tabLabel,
   }) {
     return RelayAgent(
       id: id ?? this.id,
@@ -67,6 +73,7 @@ class RelayAgent {
       workspaceId: workspaceId ?? this.workspaceId,
       isPlainTerminal: isPlainTerminal ?? this.isPlainTerminal,
       terminalTitle: terminalTitle ?? this.terminalTitle,
+      tabLabel: tabLabel ?? this.tabLabel,
     );
   }
 
@@ -124,14 +131,19 @@ class RelayAgent {
     return t;
   }
 
-  /// Distinct primary label for a row: meaningful terminal title, else
-  /// "folder · last prompt", else "folder · pane id". Never the bare agent
-  /// name — that collides when many panes share `pi` / `claude`.
+  /// Distinct primary label for a row: Herdr tab title first, else meaningful
+  /// terminal title, else "folder · last prompt", else "folder · pane id".
+  /// Never the bare agent name — that collides when many panes share `pi`.
   ///
   /// [folderHint] (e.g. workspace label) is used when [cwd] is missing.
   String primaryLabel({String? lastPrompt, String? folderHint}) {
     // Plain terminals keep the full pane id — there is no agent name to collide.
-    if (isPlainTerminal) return id;
+    if (isPlainTerminal) {
+      final tab = (tabLabel ?? '').trim();
+      return tab.isNotEmpty ? tab : id;
+    }
+    final tab = (tabLabel ?? '').trim();
+    if (tab.isNotEmpty) return tab;
     final title = meaningfulTitle;
     if (title != null) return title;
     final hint = (folderHint ?? '').trim();
@@ -174,16 +186,19 @@ class RelayAgent {
 
   factory RelayAgent.fromJson(Map<String, dynamic> json) {
     final id = json['pane_id'] ?? json['id'] ?? json['target'] ?? '';
+    final rawTab = json['tab_label'];
     return RelayAgent(
       id: id is String ? id : '$id',
-      agent: (json['display_agent'] ?? json['agent'] ?? json['tab_label'] ?? '')
-          .toString(),
+      agent: (json['display_agent'] ?? json['agent'] ?? '').toString(),
       status: (json['agent_status'] ?? json['status'] ?? 'unknown').toString(),
       cwd: json['cwd'] as String?,
       focused: json['focused'] == true,
       workspaceId: (json['workspace_id'] ?? '').toString(),
       terminalTitle:
           (json['terminal_title_stripped'] ?? json['terminal_title']) as String?,
+      tabLabel: rawTab == null || '$rawTab'.trim().isEmpty
+          ? null
+          : '$rawTab'.trim(),
     );
   }
 
@@ -196,5 +211,6 @@ class RelayAgent {
         if (cwd != null) 'cwd': cwd,
         'focused': focused,
         if (terminalTitle != null) 'terminal_title': terminalTitle,
+        if (tabLabel != null) 'tab_label': tabLabel,
       };
 }

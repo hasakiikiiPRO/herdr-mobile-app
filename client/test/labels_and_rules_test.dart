@@ -11,13 +11,20 @@ void main() {
     expect(out.contains('\x1B[31m'), isTrue);
   });
 
-  RelayAgent a(String title, {String agent = 'pi', String? cwd}) =>
+  RelayAgent a(String title, {String agent = 'pi', String? cwd, String? tabLabel}) =>
       RelayAgent.fromJson({
         'pane_id': 'w4:p27',
         'agent': agent,
         'cwd': cwd ?? '/home/u/cc',
         'terminal_title': title,
+        if (tabLabel != null) 'tab_label': tabLabel,
       });
+
+  test('tab_label wins over folder·paneId and generic titles', () {
+    expect(a('π - cc', tabLabel: 'test').primaryLabel(), 'test');
+    expect(a('π - cc', tabLabel: '8').primaryLabel(lastPrompt: 'fix'), '8');
+    expect(a('π - cc', tabLabel: '18').primaryLabel(), '18');
+  });
 
   test('generic titles fall back to cwd + prompt / pane id', () {
     expect(a('π - cc').primaryLabel(), 'cc · p27');
@@ -46,5 +53,16 @@ void main() {
     });
     expect(bare.primaryLabel(), isNot('claude'));
     expect(bare.primaryLabel(folderHint: 'CC'), 'CC · p2C');
+  });
+
+  test('plain terminal uses tab_label when present', () {
+    final pane = RelayAgent(
+      id: 'w4:p10',
+      agent: 'w4:p10',
+      status: 'unknown',
+      isPlainTerminal: true,
+      tabLabel: '10',
+    );
+    expect(pane.primaryLabel(), '10');
   });
 }

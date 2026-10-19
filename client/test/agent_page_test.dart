@@ -114,6 +114,23 @@ void main() {
     expect(client.keysCalls[0].$2, ['C-c']);
   });
 
+  testWidgets('soft keys send Up / Enter / esc to agent.keys for TUI menus',
+      (tester) async {
+    await pumpAgent(tester);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, '↑'));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Enter'));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Esc'));
+    await tester.pump();
+
+    expect(client.keysCalls.length, 3);
+    expect(client.keysCalls[0].$2, ['Up']);
+    expect(client.keysCalls[1].$2, ['Enter']);
+    expect(client.keysCalls[2].$2, ['esc']);
+  });
+
   testWidgets('событие pane.agent_status_changed обновляет статус агента', (tester) async {
     await pumpAgent(tester);
     expect(find.text('blocked'), findsOneWidget);

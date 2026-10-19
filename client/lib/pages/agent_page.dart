@@ -295,6 +295,9 @@ class _AgentPageState extends State<AgentPage> {
   Future<void> _sendKeys(List<String> keys) async {
     try {
       await _repository.sendKeys(_agent.id, keys);
+      // Soft keys are for TUI menus (often while status is "blocked"), when
+      // the working-only live poll is off — refresh so the highlight moves.
+      await _refresh(silent: true);
     } catch (e) {
       if (mounted) ToastService.showError(context, e);
     }
@@ -379,21 +382,10 @@ class _AgentPageState extends State<AgentPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Control: only Ctrl-C
-          Row(
-            children: [
-              OutlinedButton.icon(
-                onPressed: () => _sendKeys(['C-c']),
-                icon: const Icon(Icons.stop, size: 16),
-                label: Text(context.l10n.ctrlC),
-                style: OutlinedButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                  foregroundColor: Colors.red.shade700,
-                ),
-              ),
-              const Spacer(),
-            ],
-          ),
+          // Soft keys for phone TUI menus (↑/↓/Enter/Esc). Hardware arrows are
+          // not available on touch; the text field's arrow keys only browse
+          // local command history and never reach the remote PTY.
+          _buildSoftKeys(),
           const SizedBox(height: 8),
           // Text input with history navigation
           Row(
@@ -437,6 +429,51 @@ class _AgentPageState extends State<AgentPage> {
           ),
         ],
       ),
+    );
+  }
+
+  /// Compact key pad so phone users can drive remote TUI pickers
+  /// (Claude Code / CopilotKit style: Enter · ↑/↓ · Esc).
+  ///
+  /// Key names match `herdr agent send-keys` / tmux: `esc`, `Up`, `Down`,
+  /// `Left`, `Right`, `Enter`, `Tab`, `C-c` (see docs/08, CHANGELOG Ctrl-C fix).
+  Widget _buildSoftKeys() {
+    final style = OutlinedButton.styleFrom(
+      visualDensity: VisualDensity.compact,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      minimumSize: const Size(40, 36),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+    final danger = style.copyWith(
+      foregroundColor: WidgetStatePropertyAll(Colors.red.shade700),
+    );
+
+    Widget key(String label, List<String> keys, {String? tooltip, ButtonStyle? s}) {
+      return Padding(
+        padding: const EdgeInsets.only(right: 6, bottom: 4),
+        child: Tooltip(
+          message: tooltip ?? label,
+          child: OutlinedButton(
+            onPressed: () => _sendKeys(keys),
+            style: s ?? style,
+            child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          ),
+        ),
+      );
+    }
+
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        key('Esc', ['esc'], tooltip: 'Escape'),
+        key('↑', ['Up'], tooltip: 'Arrow up'),
+        key('↓', ['Down'], tooltip: 'Arrow down'),
+        key('←', ['Left'], tooltip: 'Arrow left'),
+        key('→', ['Right'], tooltip: 'Arrow right'),
+        key('Enter', ['Enter']),
+        key('Tab', ['Tab']),
+        key(context.l10n.ctrlC, ['C-c'], tooltip: context.l10n.ctrlC, s: danger),
+      ],
     );
   }
 

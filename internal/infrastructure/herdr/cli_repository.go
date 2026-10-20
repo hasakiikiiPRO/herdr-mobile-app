@@ -41,6 +41,10 @@ func (r *CLIRepository) run(args ...string) ([]byte, error) {
 	return out, nil
 }
 
+func isAgentNotFound(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "agent_not_found")
+}
+
 // Snapshot returns the complete herdr session snapshot: workspaces, panes,
 // agents and the focused targets (`herdr api snapshot`).
 func (r *CLIRepository) Snapshot() (*domain.Snapshot, error) {
@@ -56,9 +60,7 @@ func (r *CLIRepository) Snapshot() (*domain.Snapshot, error) {
 	if err := json.Unmarshal(out, &env); err != nil {
 		return nil, fmt.Errorf("parse snapshot: %w", err)
 	}
-	snap := &env.Result.Snapshot
-	snap.EnrichTabLabels()
-	return snap, nil
+	return &env.Result.Snapshot, nil
 }
 
 // StartAgent launches an agent of the given kind into an existing pane:
@@ -95,11 +97,16 @@ func (r *CLIRepository) CreateWorkspace(label, cwd string) (string, string, erro
 }
 
 // ReadOutput reads the terminal output of an agent.
+// Falls back to pane read when herdr has not registered the pane as an
+// agent (common for agent_status=unknown), so mobile refresh still works.
 func (r *CLIRepository) ReadOutput(target string, lines int, format string) (string, error) {
 	if format == "" {
 		format = "text"
 	}
 	out, err := r.run("agent", "read", target, "--lines", fmt.Sprintf("%d", lines), "--format", format)
+	if err != nil && isAgentNotFound(err) {
+		return r.ReadPaneOutput(target, lines, format)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -117,9 +124,22 @@ func (r *CLIRepository) SendKeys(target string, keys []string) error {
 }
 
 // SendPrompt sends a text prompt to an agent.
+// When the pane is not in `herdr agent list` (e.g. status unknown while
+// Claude is still running), agent prompt returns agent_not_found; fall
+// back to pane send-text + Enter, which is what agent prompt does under
+// the hood for submission.
 func (r *CLIRepository) SendPrompt(target, text string) error {
 	_, err := r.run("agent", "prompt", target, text)
-	return err
+	if err == nil || !isAgentNotFound(err) {
+		return err
+	}
+	if _, e2 := r.run("pane", "send-text", target, text); e2 != nil {
+		return err
+	}
+	if _, e2 := r.run("pane", "send-keys", target, "enter"); e2 != nil {
+		return fmt.Errorf("%v; pane enter fallback: %w", err, e2)
+	}
+	return nil
 }
 
 // ReadPaneOutput reads a pane's terminal output (works for plain terminals

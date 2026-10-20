@@ -35,6 +35,11 @@ func (r *stubAgentRepo) StartAgent(name, kind, paneID string) error {
 func (r *stubAgentRepo) CreateWorkspace(label, cwd string) (string, string, error) {
 	return "", "", nil
 }
+func (r *stubAgentRepo) CreateTab(workspaceID, label, cwd string) (string, string, error) {
+	return "w5:p99", "w5:t99", nil
+}
+func (r *stubAgentRepo) ClosePane(paneID string) error { return nil }
+func (r *stubAgentRepo) CloseTab(tabID string) error  { return nil }
 
 func TestAgentService_GetOutput_CacheHit(t *testing.T) {
 	repo := &stubAgentRepo{output: "hello"}

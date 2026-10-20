@@ -29,4 +29,13 @@ type AgentRepository interface {
 
 	// CreateWorkspace creates a workspace and returns its id and label.
 	CreateWorkspace(label, cwd string) (string, string, error)
+
+	// CreateTab creates a tab in a workspace and returns the new root pane id and tab id.
+	CreateTab(workspaceID, label, cwd string) (paneID, tabID string, err error)
+
+	// ClosePane closes a pane by id.
+	ClosePane(paneID string) error
+
+	// CloseTab closes a tab by id (preferred when closing a phone "session").
+	CloseTab(tabID string) error
 }

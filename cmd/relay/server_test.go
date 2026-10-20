@@ -34,6 +34,9 @@ func (stubAgentRepo) SendPrompt(target, text string) error                      
 func (stubAgentRepo) SendText(paneID, text string) error                                   { return nil }
 func (stubAgentRepo) StartAgent(name, kind, paneID string) error                          { return nil }
 func (stubAgentRepo) CreateWorkspace(label, cwd string) (string, string, error)           { return "w9", "test-ws", nil }
+func (stubAgentRepo) CreateTab(workspaceID, label, cwd string) (string, string, error)      { return "w9:p1", "w9:t1", nil }
+func (stubAgentRepo) ClosePane(paneID string) error                                          { return nil }
+func (stubAgentRepo) CloseTab(tabID string) error                                           { return nil }
 
 // stubEventRepo is a fake event repository.
 type stubEventRepo struct{}

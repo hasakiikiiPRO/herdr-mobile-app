@@ -83,15 +83,64 @@ class SessionController extends ChangeNotifier {
     await refresh();
   }
 
+  /// Starts an agent in [workspaceId]: tries each free (agent-less) pane, and
+  /// on `agent_pane_busy` (pane is SSH / not an available shell) or when none
+  /// are free, creates a new tab via `tab.create` then starts there — so the
+  /// phone can open a remote window without touching the computer.
+  Future<String> startAgentInWorkspace(String name, String kind, String workspaceId) async {
+    // Fresh pane list before choosing a target (cached snapshots can be stale).
+    await refresh();
+    Object? lastBusy;
+    for (final pane in freePanesFor(workspaceId)) {
+      try {
+        await _client.startAgent(name, kind, pane.id);
+        await refresh();
+        return pane.id;
+      } catch (e) {
+        if (!_isPaneBusy(e)) rethrow;
+        lastBusy = e;
+        // Try the next free pane; if none work we fall through to tab.create.
+      }
+    }
+    final paneId = await _client.createTab(workspaceId: workspaceId, label: name);
+    if (paneId.isEmpty) {
+      throw StateError('tab.create returned empty pane_id');
+    }
+    try {
+      await _client.startAgent(name, kind, paneId);
+    } catch (e) {
+      // Surface the earlier busy error context when the new tab also fails.
+      if (lastBusy != null) {
+        throw StateError('agent.start failed after tab.create ($paneId): $e (earlier: $lastBusy)');
+      }
+      rethrow;
+    }
+    await refresh();
+    return paneId;
+  }
+
+  /// Whether [error] means the target pane is not an available shell.
+  bool _isPaneBusy(Object error) {
+    final s = error.toString().toLowerCase();
+    return s.contains('agent_pane_busy') ||
+        s.contains('not an available shell');
+  }
+
   /// First free (agent-less) pane of [workspaceId], if any — the target for
   /// `agent.start` (docs/11-spaces.md §0.3).
   RelayPane? freePaneFor(String? workspaceId) {
+    final panes = freePanesFor(workspaceId);
+    return panes.isEmpty ? null : panes.first;
+  }
+
+  /// All free (agent-less) panes of [workspaceId], in snapshot order.
+  List<RelayPane> freePanesFor(String? workspaceId) {
     final session = _state.dataOrNull;
-    if (session == null || workspaceId == null) return null;
-    for (final pane in session.panes) {
-      if (pane.workspaceId == workspaceId && !pane.isAgentPane) return pane;
-    }
-    return null;
+    if (session == null || workspaceId == null) return const [];
+    return [
+      for (final pane in session.panes)
+        if (pane.workspaceId == workspaceId && !pane.isAgentPane) pane,
+    ];
   }
 
   void _hydrateFromCache() {

@@ -136,6 +136,16 @@ class AgentRepository {
     await _client.keys(agentId, keys);
   }
 
+  /// Closes a session on the host: prefers `tab.close` when [tabId] is known,
+  /// otherwise `pane.close`. Does not touch other machines.
+  Future<void> closeSession({required String paneId, String tabId = ''}) async {
+    if (tabId.isNotEmpty) {
+      await _client.closeTab(tabId);
+    } else {
+      await _client.closePane(paneId);
+    }
+  }
+
   /// Stream of typed events
   Stream<RelayEvent> get events => _client.events;
 

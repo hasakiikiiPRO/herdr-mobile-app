@@ -86,6 +86,15 @@ class AgentsStore extends ChangeNotifier {
     }
   }
 
+  /// Closes the given agents' host tabs/panes, then refreshes the list.
+  /// Prefer tab.close so the whole window/session goes away.
+  Future<void> closeAgents(Iterable<RelayAgent> agents) async {
+    for (final a in agents) {
+      await _repository.closeSession(paneId: a.id, tabId: a.tabId);
+    }
+    await refresh();
+  }
+
   /// Aggregates the statuses of [workspaceId]'s agents for a space tile:
   /// blocked > working > done > idle > unknown; `unknown` when the space has
   /// no agents.

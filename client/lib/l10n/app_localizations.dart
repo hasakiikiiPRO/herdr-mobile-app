@@ -690,14 +690,20 @@ abstract class AppLocalizations {
   /// No description provided for @noFreePaneAllHaveAgents.
   ///
   /// In en, this message translates to:
-  /// **'No free pane in this workspace — all panes have agents.'**
+  /// **'No free pane — a new tab will be created when you start.'**
   String get noFreePaneAllHaveAgents;
 
   /// No description provided for @willStartInFreePane.
   ///
   /// In en, this message translates to:
-  /// **'Will start in free pane {paneId}'**
+  /// **'Will try free pane {paneId}; if busy, creates a new tab'**
   String willStartInFreePane(String paneId);
+
+  /// No description provided for @willCreateTabThenStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Will create a new tab, then start the agent'**
+  String get willCreateTabThenStart;
 
   /// No description provided for @startAgent.
   ///
@@ -708,7 +714,7 @@ abstract class AppLocalizations {
   /// No description provided for @noFreePaneRunFirst.
   ///
   /// In en, this message translates to:
-  /// **'No free pane in this workspace — run an agent there first on the computer.'**
+  /// **'No free pane — a new tab will be created when you start.'**
   String get noFreePaneRunFirst;
 
   /// No description provided for @enterAgentName.
@@ -980,6 +986,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get addDeviceChip;
+
+  /// No description provided for @agentPaneBusyRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'That pane is busy — creating a new tab…'**
+  String get agentPaneBusyRetry;
+
+  /// No description provided for @startAgentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start the agent: {error}'**
+  String startAgentFailed(String error);
+
+  /// No description provided for @selectSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get selectSessions;
+
+  /// No description provided for @cancelSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelSelection;
+
+  /// No description provided for @closeSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get closeSelected;
+
+  /// No description provided for @closeSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Close session'**
+  String get closeSession;
+
+  /// No description provided for @closeSessionConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close selected sessions?'**
+  String get closeSessionConfirmTitle;
+
+  /// No description provided for @closeSessionConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Will close {count} session(s) on this computer. This cannot be undone from the phone.'**
+  String closeSessionConfirmBody(int count);
+
+  /// No description provided for @closeSessionConfirmOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Close “{name}” on this computer? The tab/pane will be closed.'**
+  String closeSessionConfirmOne(String name);
+
+  /// No description provided for @sessionsClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed {count} session(s)'**
+  String sessionsClosed(int count);
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String selectedCount(int count);
 }
 
 class _AppLocalizationsDelegate

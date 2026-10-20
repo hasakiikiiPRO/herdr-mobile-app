@@ -180,8 +180,8 @@
   "workspace": "工作区",
   "agentName": "助手名称",
   "agentNameHint": "codex-1",
-  "noFreePaneAllHaveAgents": "此工作区没有空闲窗格 — 所有窗格都已有助手。",
-  "willStartInFreePane": "将在空闲窗格 {paneId} 中启动",
+  "noFreePaneAllHaveAgents": "没有空闲窗格 — 启动时会新建标签页。",
+  "willStartInFreePane": "将优先使用空闲窗格 {paneId}；若不可用会自动新建标签页",
   "@willStartInFreePane": {
     "placeholders": {
       "paneId": {
@@ -189,8 +189,9 @@
       }
     }
   },
+  "willCreateTabThenStart": "将新建一个标签页，然后启动助手",
   "startAgent": "启动助手",
-  "noFreePaneRunFirst": "此工作区没有空闲窗格 — 请先在电脑上运行一个助手。",
+  "noFreePaneRunFirst": "没有空闲窗格 — 启动时会新建标签页。",
   "enterAgentName": "请输入助手名称",
   "startedAgentInPane": "已在 {paneId} 启动 {name}（{kind}）",
   "@startedAgentInPane": {
@@ -297,5 +298,51 @@
   "deviceOnline": "在线",
   "deviceOffline": "离线",
   "deviceUnknown": "未知",
-  "addDeviceChip": "添加"
+  "addDeviceChip": "添加",
+  "agentPaneBusyRetry": "该窗格正忙 — 正在新建标签页…",
+  "startAgentFailed": "无法启动助手：{error}",
+  "@startAgentFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "selectSessions": "选择",
+  "cancelSelection": "取消",
+  "closeSelected": "关闭",
+  "closeSession": "关闭会话",
+  "closeSessionConfirmTitle": "关闭所选会话？",
+  "closeSessionConfirmBody": "将在这台电脑上关闭 {count} 个会话。手机端无法撤销。",
+  "@closeSessionConfirmBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeSessionConfirmOne": "在这台电脑上关闭“{name}”？对应标签页/窗格会被关闭。",
+  "@closeSessionConfirmOne": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionsClosed": "已关闭 {count} 个会话",
+  "@sessionsClosed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectedCount": "已选 {count} 个",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

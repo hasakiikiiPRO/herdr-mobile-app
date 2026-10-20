@@ -9,7 +9,8 @@
    Spaces — list of workspaces (main), Agents — flat list, Run — launch.
 2. **Show all panes** — both agents and empty terminals (terminal access).
 3. **Agent launch** — into the first free empty pane of the selected workspace;
-   pane creation (`pane.split`) — later.
+   if none free or panes are busy (not an available shell), create a tab
+   (`tab.create`) then start; phone can also close sessions (`tab.close`/`pane.close`).
 4. **Scope** — staged: A. protocol (server) → live verification → B–C. UI.
 
 ## 1. Current state (verified live)
@@ -126,8 +127,8 @@ Live protocol verification: `session.snapshot` → 4 workspaces / 6 panes;
    as objects) or only when you open a workspace? (proposal: show them,
    this is exactly the "terminal access").
 3. **Launch into a pane vs new**: `agent.start` requires an existing pane —
-   launch into the first free pane of the workspace, or add `pane.split`/
-   pane creation? (proposal: free pane; split — later).
+   launch into the first free pane of the workspace; when none is free,
+   create a tab (`tab.create`) then start (implemented in 0.4.8).
 4. **send_text for an empty pane**: check the CLI/socket path
    (`pane.send_input`/`pane.send_text` from docs/10 §4) — if the CLI can't,
    do it via socket.

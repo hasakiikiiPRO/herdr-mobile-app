@@ -374,6 +374,38 @@ class _AgentPageState extends State<AgentPage> {
     }
   }
 
+
+  Future<void> _closeSession() async {
+    final live = _store.byId(_agent.id) ?? _agent;
+    final name = live.primaryLabel(lastPrompt: _historyService.lastSync(live.id));
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.closeSession),
+        content: Text(context.l10n.closeSessionConfirmOne(name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(context.l10n.closeSelected),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await _store.closeAgents([live]);
+      if (!mounted) return;
+      ToastService.showSuccess(context, context.l10n.sessionsClosed(1));
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) ToastService.showError(context, e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -418,6 +450,11 @@ class _AgentPageState extends State<AgentPage> {
             icon: const Icon(Icons.refresh),
             onPressed: _loading ? null : () => _refresh(),
             tooltip: context.l10n.refreshOutput,
+          ),
+          IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: context.l10n.closeSession,
+            onPressed: _closeSession,
           ),
         ],
       ),

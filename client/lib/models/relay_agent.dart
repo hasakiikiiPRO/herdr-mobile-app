@@ -15,6 +15,7 @@ class RelayAgent {
     this.cwd,
     this.focused = false,
     this.workspaceId = '',
+    this.tabId = '',
     this.isPlainTerminal = false,
     this.terminalTitle,
     this.tabLabel,
@@ -44,6 +45,9 @@ class RelayAgent {
   /// Workspace (space) this agent's pane belongs to ('' when unknown).
   final String workspaceId;
 
+  /// Tab id for this pane ('' when unknown) — preferred target for closing.
+  final String tabId;
+
   /// True when this is a plain terminal pane (no agent): input is sent as
   /// literal text (`pane.send_text`), not as an agent prompt.
   final bool isPlainTerminal;
@@ -60,6 +64,7 @@ class RelayAgent {
     String? cwd,
     bool? focused,
     String? workspaceId,
+    String? tabId,
     bool? isPlainTerminal,
     String? terminalTitle,
     String? tabLabel,
@@ -71,6 +76,7 @@ class RelayAgent {
       cwd: cwd ?? this.cwd,
       focused: focused ?? this.focused,
       workspaceId: workspaceId ?? this.workspaceId,
+      tabId: tabId ?? this.tabId,
       isPlainTerminal: isPlainTerminal ?? this.isPlainTerminal,
       terminalTitle: terminalTitle ?? this.terminalTitle,
       tabLabel: tabLabel ?? this.tabLabel,
@@ -194,6 +200,7 @@ class RelayAgent {
       cwd: json['cwd'] as String?,
       focused: json['focused'] == true,
       workspaceId: (json['workspace_id'] ?? '').toString(),
+      tabId: (json['tab_id'] ?? '').toString(),
       terminalTitle:
           (json['terminal_title_stripped'] ?? json['terminal_title']) as String?,
       tabLabel: rawTab == null || '$rawTab'.trim().isEmpty
@@ -210,6 +217,8 @@ class RelayAgent {
         'agent_status': status,
         if (cwd != null) 'cwd': cwd,
         'focused': focused,
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
+        if (tabId.isNotEmpty) 'tab_id': tabId,
         if (terminalTitle != null) 'terminal_title': terminalTitle,
         if (tabLabel != null) 'tab_label': tabLabel,
       };

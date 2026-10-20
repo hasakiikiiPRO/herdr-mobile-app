@@ -42,6 +42,16 @@ abstract class RelayClient {
   /// Creates a workspace (`workspace.create`) and returns its id.
   Future<String> createWorkspace({String? label, String? cwd});
 
+  /// Creates a tab in [workspaceId] (`tab.create`) and returns the new root
+  /// pane id — used when Run has no free pane so the phone can open a window.
+  Future<String> createTab({required String workspaceId, String? label, String? cwd});
+
+  /// Closes a pane (`pane.close`). Prefer [closeTab] when closing a session.
+  Future<void> closePane(String paneId);
+
+  /// Closes a tab and its panes (`tab.close`) — the usual way to end a session.
+  Future<void> closeTab(String tabId);
+
   /// Agent terminal output (`agent.output`).
   Future<AgentOutputResult> output(String target, {int lines = 200, String format = 'text'});
 

@@ -326,18 +326,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentNameHint => 'codex-1';
 
   @override
-  String get noFreePaneAllHaveAgents => '此工作区没有空闲窗格 — 所有窗格都已有助手。';
+  String get noFreePaneAllHaveAgents => '没有空闲窗格 — 启动时会新建标签页。';
 
   @override
   String willStartInFreePane(String paneId) {
-    return '将在空闲窗格 $paneId 中启动';
+    return '将优先使用空闲窗格 $paneId；若不可用会自动新建标签页';
   }
+
+  @override
+  String get willCreateTabThenStart => '将新建一个标签页，然后启动助手';
 
   @override
   String get startAgent => '启动助手';
 
   @override
-  String get noFreePaneRunFirst => '此工作区没有空闲窗格 — 请先在电脑上运行一个助手。';
+  String get noFreePaneRunFirst => '没有空闲窗格 — 启动时会新建标签页。';
 
   @override
   String get enterAgentName => '请输入助手名称';
@@ -490,6 +493,49 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get addDeviceChip => '添加';
+
+  @override
+  String get agentPaneBusyRetry => '该窗格正忙 — 正在新建标签页…';
+
+  @override
+  String startAgentFailed(String error) {
+    return '无法启动助手：$error';
+  }
+
+  @override
+  String get selectSessions => '选择';
+
+  @override
+  String get cancelSelection => '取消';
+
+  @override
+  String get closeSelected => '关闭';
+
+  @override
+  String get closeSession => '关闭会话';
+
+  @override
+  String get closeSessionConfirmTitle => '关闭所选会话？';
+
+  @override
+  String closeSessionConfirmBody(int count) {
+    return '将在这台电脑上关闭 $count 个会话。手机端无法撤销。';
+  }
+
+  @override
+  String closeSessionConfirmOne(String name) {
+    return '在这台电脑上关闭“$name”？对应标签页/窗格会被关闭。';
+  }
+
+  @override
+  String sessionsClosed(int count) {
+    return '已关闭 $count 个会话';
+  }
+
+  @override
+  String selectedCount(int count) {
+    return '已选 $count 个';
+  }
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -814,18 +860,21 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get agentNameHint => 'codex-1';
 
   @override
-  String get noFreePaneAllHaveAgents => '此工作区没有空闲窗格 — 所有窗格都已有助手。';
+  String get noFreePaneAllHaveAgents => '没有空闲窗格 — 启动时会新建标签页。';
 
   @override
   String willStartInFreePane(String paneId) {
-    return '将在空闲窗格 $paneId 中启动';
+    return '将优先使用空闲窗格 $paneId；若不可用会自动新建标签页';
   }
+
+  @override
+  String get willCreateTabThenStart => '将新建一个标签页，然后启动助手';
 
   @override
   String get startAgent => '启动助手';
 
   @override
-  String get noFreePaneRunFirst => '此工作区没有空闲窗格 — 请先在电脑上运行一个助手。';
+  String get noFreePaneRunFirst => '没有空闲窗格 — 启动时会新建标签页。';
 
   @override
   String get enterAgentName => '请输入助手名称';
@@ -978,4 +1027,47 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get addDeviceChip => '添加';
+
+  @override
+  String get agentPaneBusyRetry => '该窗格正忙 — 正在新建标签页…';
+
+  @override
+  String startAgentFailed(String error) {
+    return '无法启动助手：$error';
+  }
+
+  @override
+  String get selectSessions => '选择';
+
+  @override
+  String get cancelSelection => '取消';
+
+  @override
+  String get closeSelected => '关闭';
+
+  @override
+  String get closeSession => '关闭会话';
+
+  @override
+  String get closeSessionConfirmTitle => '关闭所选会话？';
+
+  @override
+  String closeSessionConfirmBody(int count) {
+    return '将在这台电脑上关闭 $count 个会话。手机端无法撤销。';
+  }
+
+  @override
+  String closeSessionConfirmOne(String name) {
+    return '在这台电脑上关闭“$name”？对应标签页/窗格会被关闭。';
+  }
+
+  @override
+  String sessionsClosed(int count) {
+    return '已关闭 $count 个会话';
+  }
+
+  @override
+  String selectedCount(int count) {
+    return '已选 $count 个';
+  }
 }

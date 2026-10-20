@@ -163,3 +163,28 @@ func (s *AgentService) StartAgent(name, kind, paneID string) error {
 func (s *AgentService) CreateWorkspace(label, cwd string) (string, string, error) {
 	return s.repo.CreateWorkspace(label, cwd)
 }
+
+// CreateTab creates a new tab (free root pane) in a workspace.
+func (s *AgentService) CreateTab(workspaceID, label, cwd string) (paneID, tabID string, err error) {
+	if workspaceID == "" {
+		return "", "", ErrInvalidTarget
+	}
+	return s.repo.CreateTab(workspaceID, label, cwd)
+}
+
+// ClosePane closes a pane by id.
+func (s *AgentService) ClosePane(paneID string) error {
+	if paneID == "" {
+		return ErrInvalidTarget
+	}
+	return s.repo.ClosePane(paneID)
+}
+
+// CloseTab closes a tab by id.
+func (s *AgentService) CloseTab(tabID string) error {
+	if tabID == "" {
+		return ErrInvalidTarget
+	}
+	return s.repo.CloseTab(tabID)
+}
+

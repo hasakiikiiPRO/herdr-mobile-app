@@ -149,6 +149,26 @@ class RelayClientImpl implements RelayClient {
   }
 
   @override
+  Future<String> createTab({required String workspaceId, String? label, String? cwd}) async {
+    final result = await _rpc.request('tab.create', {
+      'workspace_id': workspaceId,
+      if (label != null && label.isNotEmpty) 'label': label,
+      if (cwd != null && cwd.isNotEmpty) 'cwd': cwd,
+    });
+    return (result['pane_id'] ?? '').toString();
+  }
+
+  @override
+  Future<void> closePane(String paneId) async {
+    await _rpc.request('pane.close', {'pane_id': paneId});
+  }
+
+  @override
+  Future<void> closeTab(String tabId) async {
+    await _rpc.request('tab.close', {'tab_id': tabId});
+  }
+
+  @override
   Future<AgentOutputResult> output(String target, {int lines = 200, String format = 'text'}) async {
     final result = await _rpc.request('agent.output', {
       'target': target,

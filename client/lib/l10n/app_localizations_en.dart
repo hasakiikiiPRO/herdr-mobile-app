@@ -337,19 +337,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noFreePaneAllHaveAgents =>
-      'No free pane in this workspace — all panes have agents.';
+      'No free pane — a new tab will be created when you start.';
 
   @override
   String willStartInFreePane(String paneId) {
-    return 'Will start in free pane $paneId';
+    return 'Will try free pane $paneId; if busy, creates a new tab';
   }
+
+  @override
+  String get willCreateTabThenStart =>
+      'Will create a new tab, then start the agent';
 
   @override
   String get startAgent => 'Start agent';
 
   @override
   String get noFreePaneRunFirst =>
-      'No free pane in this workspace — run an agent there first on the computer.';
+      'No free pane — a new tab will be created when you start.';
 
   @override
   String get enterAgentName => 'Enter an agent name';
@@ -508,4 +512,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addDeviceChip => 'Add';
+
+  @override
+  String get agentPaneBusyRetry => 'That pane is busy — creating a new tab…';
+
+  @override
+  String startAgentFailed(String error) {
+    return 'Could not start the agent: $error';
+  }
+
+  @override
+  String get selectSessions => 'Select';
+
+  @override
+  String get cancelSelection => 'Cancel';
+
+  @override
+  String get closeSelected => 'Close';
+
+  @override
+  String get closeSession => 'Close session';
+
+  @override
+  String get closeSessionConfirmTitle => 'Close selected sessions?';
+
+  @override
+  String closeSessionConfirmBody(int count) {
+    return 'Will close $count session(s) on this computer. This cannot be undone from the phone.';
+  }
+
+  @override
+  String closeSessionConfirmOne(String name) {
+    return 'Close “$name” on this computer? The tab/pane will be closed.';
+  }
+
+  @override
+  String sessionsClosed(int count) {
+    return 'Closed $count session(s)';
+  }
+
+  @override
+  String selectedCount(int count) {
+    return '$count selected';
+  }
 }

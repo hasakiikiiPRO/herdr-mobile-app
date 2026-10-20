@@ -15,10 +15,10 @@ const List<String> agentKinds = [
   'grok', 'hermes', 'kilo', 'qodercli', 'maki',
 ];
 
-/// Run tab: launch an agent from the phone into a free pane of a workspace
-/// (`agent.start`). The first plain (agent-less) pane of the chosen workspace
-/// is used; creating panes/workspaces from the phone is a later step
-/// (docs/11-spaces.md).
+/// Run tab: launch an agent from the phone into a workspace (`agent.start`).
+/// Uses the first free (agent-less) pane; when every pane already has an
+/// agent, creates a new tab via `tab.create` so the phone can open a remote
+/// window without touching the computer.
 ///
 /// Workspace/pane data comes from the shared [SessionController]; this page
 /// keeps only UI state (kind/workspace selection, name field, start in-flight).
@@ -78,10 +78,10 @@ class _RunPageState extends State<RunPage> {
   RelayPane? get _freePane => _controller.freePaneFor(_workspaceId);
 
   Future<void> _start() async {
-    final pane = _freePane;
     final name = _nameController.text.trim();
-    if (pane == null) {
-      ToastService.showError(context, context.l10n.noFreePaneRunFirst);
+    final workspaceId = _workspaceId;
+    if (workspaceId == null) {
+      ToastService.showError(context, context.l10n.noWorkspacesCreateFirst);
       return;
     }
     if (name.isEmpty) {
@@ -90,14 +90,24 @@ class _RunPageState extends State<RunPage> {
     }
     setState(() => _starting = true);
     try {
-      await _controller.startAgent(name, _kind, pane.id);
+      final paneId =
+          await _controller.startAgentInWorkspace(name, _kind, workspaceId);
       if (mounted) {
         ToastService.showSuccess(
-            context, context.l10n.startedAgentInPane(name, _kind, pane.id));
+            context, context.l10n.startedAgentInPane(name, _kind, paneId));
         _nameController.clear();
       }
     } catch (e) {
-      if (mounted) ToastService.showError(context, e);
+      if (mounted) {
+        final msg = e.toString();
+        ToastService.showError(
+          context,
+          msg.toLowerCase().contains('agent_pane_busy') ||
+                  msg.toLowerCase().contains('not an available shell')
+              ? context.l10n.startAgentFailed(context.l10n.agentPaneBusyRetry)
+              : e,
+        );
+      }
     } finally {
       if (mounted) setState(() => _starting = false);
     }
@@ -186,14 +196,14 @@ class _RunPageState extends State<RunPage> {
                 const SizedBox(height: 8),
                 Text(
                   _freePane == null
-                      ? context.l10n.noFreePaneAllHaveAgents
+                      ? context.l10n.willCreateTabThenStart
                       : context.l10n.willStartInFreePane(_freePane!.id),
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.outline),
                 ),
                 const SizedBox(height: 16),
                 FilledButton.icon(
-                  onPressed: (_starting || _freePane == null) ? null : _start,
+                  onPressed: (_starting || _workspaceId == null) ? null : _start,
                   icon: _starting
                       ? const SizedBox(
                           width: 16,

@@ -99,6 +99,45 @@ func (r *CLIRepository) CreateWorkspace(label, cwd string) (string, string, erro
 	return env.Result.WorkspaceID, env.Result.Label, nil
 }
 
+// CreateTab creates a new tab (with a free root pane) in a workspace:
+// `herdr tab create --workspace <id> [--label ...] [--cwd ...] --focus`.
+// Returns the new root pane id and tab id so the caller can agent.start into it.
+func (r *CLIRepository) CreateTab(workspaceID, label, cwd string) (paneID, tabID string, err error) {
+	args := []string{"tab", "create", "--focus"}
+	if workspaceID != "" {
+		args = append(args, "--workspace", workspaceID)
+	}
+	if label != "" {
+		args = append(args, "--label", label)
+	}
+	if cwd != "" {
+		args = append(args, "--cwd", cwd)
+	}
+	out, err := r.run(args...)
+	if err != nil {
+		return "", "", err
+	}
+	var env struct {
+		Result struct {
+			RootPane struct {
+				PaneID string `json:"pane_id"`
+			} `json:"root_pane"`
+			Tab struct {
+				TabID string `json:"tab_id"`
+			} `json:"tab"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(out, &env); err != nil {
+		return "", "", fmt.Errorf("parse tab create: %w", err)
+	}
+	paneID = env.Result.RootPane.PaneID
+	tabID = env.Result.Tab.TabID
+	if paneID == "" {
+		return "", "", fmt.Errorf("tab create: empty root pane id")
+	}
+	return paneID, tabID, nil
+}
+
 // ReadOutput reads the terminal output of an agent.
 // Falls back to pane read when herdr has not registered the pane as an
 // agent (common for agent_status=unknown), so mobile refresh still works.
@@ -165,3 +204,16 @@ func (r *CLIRepository) SendText(paneID, text string) error {
 	_, err := r.run("pane", "send-text", paneID, text)
 	return err
 }
+
+// ClosePane closes a pane: `herdr pane close <paneID>`.
+func (r *CLIRepository) ClosePane(paneID string) error {
+	_, err := r.run("pane", "close", paneID)
+	return err
+}
+
+// CloseTab closes a tab (and its panes): `herdr tab close <tabID>`.
+func (r *CLIRepository) CloseTab(tabID string) error {
+	_, err := r.run("tab", "close", tabID)
+	return err
+}
+

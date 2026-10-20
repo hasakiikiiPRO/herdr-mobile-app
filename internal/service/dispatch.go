@@ -148,6 +148,45 @@ func (s *AgentService) Dispatch(method string, params json.RawMessage) (interfac
 		}
 		return map[string]bool{"ok": true}, nil
 
+	case "tab.create":
+		var p struct {
+			WorkspaceID string `json:"workspace_id"`
+			Label       string `json:"label"`
+			Cwd         string `json:"cwd"`
+		}
+		if err := json.Unmarshal(params, &p); err != nil {
+			return nil, badParams()
+		}
+		paneID, tabID, err := s.CreateTab(p.WorkspaceID, p.Label, p.Cwd)
+		if err != nil {
+			return nil, herdrError(err)
+		}
+		return map[string]string{"pane_id": paneID, "tab_id": tabID}, nil
+
+
+	case "pane.close":
+		var p struct {
+			PaneID string `json:"pane_id"`
+		}
+		if err := json.Unmarshal(params, &p); err != nil {
+			return nil, badParams()
+		}
+		if err := s.ClosePane(p.PaneID); err != nil {
+			return nil, herdrError(err)
+		}
+		return map[string]bool{"ok": true}, nil
+
+	case "tab.close":
+		var p struct {
+			TabID string `json:"tab_id"`
+		}
+		if err := json.Unmarshal(params, &p); err != nil {
+			return nil, badParams()
+		}
+		if err := s.CloseTab(p.TabID); err != nil {
+			return nil, herdrError(err)
+		}
+		return map[string]bool{"ok": true}, nil
 	default:
 		return nil, unknownMethod(method)
 	}

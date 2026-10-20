@@ -16,6 +16,7 @@ import '../utils/async_value.dart';
 import '../widgets/mode_picker_sheet.dart';
 import '../widgets/device_switcher_bar.dart';
 import '../widgets/status_chip.dart';
+import '../utils/toast_service.dart';
 import '../theme/app_theme.dart';
 import 'agent_page.dart';
 import 'run_page.dart';
@@ -91,6 +92,10 @@ class _HomePageState extends State<HomePage> {
   /// (eagerly building all three fetched getAgents + 2× session at startup).
   /// Seeded with the restored tab so it builds immediately.
   late final Set<int> _visitedTabs;
+
+  /// Agents-tab multi-select: long-press a row to enter, then close selected.
+  bool _selecting = false;
+  final Set<String> _selectedIds = {};
 
   @override
   void initState() {
@@ -194,7 +199,9 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.config.displayName,
+              _selecting
+                  ? context.l10n.selectedCount(_selectedIds.length)
+                  : widget.config.displayName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -250,33 +257,60 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _repository.status.value == RelayStatus.connected
-                ? () => _store.refresh()
-                : null,
-            tooltip: context.l10n.refresh,
-          ),
-          PopupMenuButton<String>(
-            onSelected: (v) {
-              switch (v) {
-                case 'add':
-                  widget.onAddDevice();
-                case 'forget':
-                  _confirmForget();
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'add',
-                child: Text(context.l10n.addDevice),
-              ),
-              PopupMenuItem(
-                value: 'forget',
-                child: Text(context.l10n.forgetDevice),
-              ),
-            ],
-          ),
+          if (_selecting && _tabIndex == 1) ...[
+            TextButton(
+              onPressed: () => setState(() {
+                _selecting = false;
+                _selectedIds.clear();
+              }),
+              child: Text(context.l10n.cancelSelection),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              tooltip: context.l10n.closeSelected,
+              onPressed: _selectedIds.isEmpty ? null : _closeSelected,
+            ),
+          ] else ...[
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _repository.status.value == RelayStatus.connected
+                  ? () => _store.refresh()
+                  : null,
+              tooltip: context.l10n.refresh,
+            ),
+            PopupMenuButton<String>(
+              onSelected: (v) {
+                switch (v) {
+                  case 'select':
+                    setState(() {
+                      _selecting = true;
+                      _selectedIds.clear();
+                      _tabIndex = 1;
+                      _visitedTabs.add(1);
+                    });
+                    _store.ensureLoaded();
+                  case 'add':
+                    widget.onAddDevice();
+                  case 'forget':
+                    _confirmForget();
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'select',
+                  child: Text(context.l10n.selectSessions),
+                ),
+                PopupMenuItem(
+                  value: 'add',
+                  child: Text(context.l10n.addDevice),
+                ),
+                PopupMenuItem(
+                  value: 'forget',
+                  child: Text(context.l10n.forgetDevice),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
       // The gate overlays the tabs (kept alive underneath) so dismissing it
@@ -554,7 +588,23 @@ class _HomePageState extends State<HomePage> {
                   key: ValueKey(agent.id),
                   child: _AgentTile(
                     agent: agent,
-                    onTap: () => _openAgent(agent),
+                    selecting: _selecting,
+                    selected: _selectedIds.contains(agent.id),
+                    onTap: () {
+                      if (_selecting) {
+                        _toggleSelect(agent.id);
+                      } else {
+                        _openAgent(agent);
+                      }
+                    },
+                    onLongPress: () {
+                      setState(() {
+                        _selecting = true;
+                        _selectedIds
+                          ..clear()
+                          ..add(agent.id);
+                      });
+                    },
                   ),
                 );
               },
@@ -562,6 +612,62 @@ class _HomePageState extends State<HomePage> {
         };
       },
     );
+  }
+
+
+  Future<void> _closeSelected() async {
+    final agents = _store.all.where((a) => _selectedIds.contains(a.id)).toList();
+    if (agents.isEmpty) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.closeSessionConfirmTitle),
+        content: Text(
+          agents.length == 1
+              ? context.l10n.closeSessionConfirmOne(
+                  agents.first.primaryLabel(
+                    lastPrompt: getIt.isRegistered<CommandHistoryService>()
+                        ? getIt<CommandHistoryService>().lastSync(agents.first.id)
+                        : null,
+                  ),
+                )
+              : context.l10n.closeSessionConfirmBody(agents.length),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(context.l10n.closeSelected),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await _store.closeAgents(agents);
+      if (!mounted) return;
+      ToastService.showSuccess(
+          context, context.l10n.sessionsClosed(agents.length));
+      setState(() {
+        _selecting = false;
+        _selectedIds.clear();
+      });
+    } catch (e) {
+      if (mounted) ToastService.showError(context, e);
+    }
+  }
+
+  void _toggleSelect(String id) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+      } else {
+        _selectedIds.add(id);
+      }
+    });
   }
 
   void _openAgent(RelayAgent agent) {
@@ -584,17 +690,33 @@ class _HomePageState extends State<HomePage> {
 }
 
 class _AgentTile extends StatelessWidget {
-  const _AgentTile({required this.agent, required this.onTap});
+  const _AgentTile({
+    required this.agent,
+    required this.onTap,
+    this.onLongPress,
+    this.selecting = false,
+    this.selected = false,
+  });
 
   final RelayAgent agent;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+  final bool selecting;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final tile = ListTile(
       onTap: onTap,
-      leading: CircleAvatar(
+      onLongPress: onLongPress,
+      selected: selected,
+      leading: selecting
+          ? Checkbox(
+              value: selected,
+              onChanged: (_) => onTap(),
+            )
+          : CircleAvatar(
         backgroundColor: statusColor(theme, agent.status),
         child: Text(
           agent.displayAgent.characters.first.toUpperCase(),

@@ -180,8 +180,8 @@
   "workspace": "Workspace",
   "agentName": "Agent name",
   "agentNameHint": "codex-1",
-  "noFreePaneAllHaveAgents": "No free pane in this workspace — all panes have agents.",
-  "willStartInFreePane": "Will start in free pane {paneId}",
+  "noFreePaneAllHaveAgents": "No free pane — a new tab will be created when you start.",
+  "willStartInFreePane": "Will try free pane {paneId}; if busy, creates a new tab",
   "@willStartInFreePane": {
     "placeholders": {
       "paneId": {
@@ -189,8 +189,9 @@
       }
     }
   },
+  "willCreateTabThenStart": "Will create a new tab, then start the agent",
   "startAgent": "Start agent",
-  "noFreePaneRunFirst": "No free pane in this workspace — run an agent there first on the computer.",
+  "noFreePaneRunFirst": "No free pane — a new tab will be created when you start.",
   "enterAgentName": "Enter an agent name",
   "startedAgentInPane": "Started {name} ({kind}) in {paneId}",
   "@startedAgentInPane": {
@@ -297,5 +298,51 @@
   "deviceOnline": "Online",
   "deviceOffline": "Offline",
   "deviceUnknown": "Unknown",
-  "addDeviceChip": "Add"
+  "addDeviceChip": "Add",
+  "agentPaneBusyRetry": "That pane is busy — creating a new tab…",
+  "startAgentFailed": "Could not start the agent: {error}",
+  "@startAgentFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "selectSessions": "Select",
+  "cancelSelection": "Cancel",
+  "closeSelected": "Close",
+  "closeSession": "Close session",
+  "closeSessionConfirmTitle": "Close selected sessions?",
+  "closeSessionConfirmBody": "Will close {count} session(s) on this computer. This cannot be undone from the phone.",
+  "@closeSessionConfirmBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeSessionConfirmOne": "Close “{name}” on this computer? The tab/pane will be closed.",
+  "@closeSessionConfirmOne": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionsClosed": "Closed {count} session(s)",
+  "@sessionsClosed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectedCount": "{count} selected",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

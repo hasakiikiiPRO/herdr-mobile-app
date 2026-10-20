@@ -141,8 +141,8 @@ void main() {
       expect(client.startAgentCalls, [( 'my-codex', 'codex', 'wH:p9')]);
     });
 
-    testWidgets('без свободного pane кнопка недоступна', (tester) async {
-      // All panes have agents in this session.
+    testWidgets('без свободного pane создаёт tab и стартует', (tester) async {
+      // All panes have agents — Run should create a tab then start.
       client.sessionData = const RelaySession(
         workspaces: [
           RelayWorkspace(id: 'wH', label: 'herdr_relay'),
@@ -151,6 +151,7 @@ void main() {
           RelayPane(id: 'wH:p8', workspaceId: 'wH', tabId: 'wH:t1', agent: 'kimi'),
         ],
       );
+      client.newTabPaneId = 'wH:pNew';
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -160,14 +161,14 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final button = tester.widget<FilledButton>(
-        find.ancestor(
-          of: find.text('Start agent'),
-          matching: find.byType(FilledButton),
-        ),
-      );
-      expect(button.onPressed, isNull);
-      expect(find.textContaining('No free pane'), findsOneWidget);
+      expect(find.textContaining('create a new tab'), findsOneWidget);
+      await tester.enterText(
+          find.widgetWithText(TextField, 'Agent name'), 'phone-bot');
+      await tester.tap(find.text('Start agent'));
+      await tester.pumpAndSettle();
+
+      expect(client.createTabCalls, [('wH', 'phone-bot', null)]);
+      expect(client.startAgentCalls, [('phone-bot', 'codex', 'wH:pNew')]);
     });
   });
 

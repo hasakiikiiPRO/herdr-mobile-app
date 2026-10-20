@@ -183,6 +183,49 @@ void main() {
       await teardownTestDependencies();
     });
 
+
+    testWidgets('startAgentInWorkspace retries busy pane then creates tab',
+        (tester) async {
+      final client = FakeRelayClient()
+        ..sessionData = const RelaySession(
+          workspaces: [RelayWorkspace(id: 'w5', label: 'cc')],
+          panes: [
+            RelayPane(id: 'w5:p1C', workspaceId: 'w5', tabId: 'w5:t1C', agent: ''),
+            RelayPane(id: 'w5:p7', workspaceId: 'w5', tabId: 'w5:t7', agent: 'claude'),
+          ],
+        )
+        ..busyPaneIds.add('w5:p1C')
+        ..newTabPaneId = 'w5:pNew';
+      await setupTestDependencies(client, config);
+      final c = getIt<SessionController>();
+      c.ensureLoaded();
+      await tester.pump();
+
+      final paneId = await c.startAgentInWorkspace('test', 'claude', 'w5');
+      expect(paneId, 'w5:pNew');
+      expect(client.startAgentCalls.map((e) => e.$3).toList(),
+          ['w5:p1C', 'w5:pNew']);
+      expect(client.createTabCalls, [('w5', 'test', null)]);
+
+      await teardownTestDependencies();
+    });
+
+    testWidgets('startAgentInWorkspace uses free pane when available',
+        (tester) async {
+      final client = FakeRelayClient()
+        ..sessionData = session;
+      await setupTestDependencies(client, config);
+      final c = getIt<SessionController>();
+      c.ensureLoaded();
+      await tester.pump();
+
+      final paneId = await c.startAgentInWorkspace('bot', 'codex', 'wH');
+      expect(paneId, 'wH:p9');
+      expect(client.createTabCalls, isEmpty);
+      expect(client.startAgentCalls, [('bot', 'codex', 'wH:p9')]);
+
+      await teardownTestDependencies();
+    });
     testWidgets('keeps cached session when reconnect fetch fails',
         (tester) async {
       final cached = const RelaySession(

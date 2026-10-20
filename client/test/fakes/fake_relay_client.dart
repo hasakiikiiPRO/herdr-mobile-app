@@ -79,6 +79,19 @@ class FakeRelayClient implements RelayClient {
   /// Id returned by `createWorkspace()`.
   String newWorkspaceId = 'w-new';
 
+  /// Pane id returned by `createTab()`.
+  String newTabPaneId = 'w-new:p1';
+
+  /// Recorded `createTab(workspaceId, label, cwd)` calls.
+  final List<(String, String?, String?)> createTabCalls = [];
+
+  /// When set, `startAgent` throws this for the given pane ids (busy panes).
+  final Set<String> busyPaneIds = {};
+
+  /// Recorded `closePane` / `closeTab` calls.
+  final List<String> closePaneCalls = [];
+  final List<String> closeTabCalls = [];
+
   /// Recorded `keys(target, keys)` calls.
   final List<(String, List<String>)> keysCalls = [];
 
@@ -123,11 +136,33 @@ class FakeRelayClient implements RelayClient {
   @override
   Future<void> startAgent(String name, String kind, String paneId) async {
     startAgentCalls.add((name, kind, paneId));
+    if (busyPaneIds.contains(paneId)) {
+      throw const RelayException(
+        'herdr_error',
+        'agent_pane_busy: agent target pane is not an available shell',
+      );
+    }
   }
 
   @override
   Future<String> createWorkspace({String? label, String? cwd}) async {
     return newWorkspaceId;
+  }
+
+  @override
+  Future<String> createTab({required String workspaceId, String? label, String? cwd}) async {
+    createTabCalls.add((workspaceId, label, cwd));
+    return newTabPaneId;
+  }
+
+  @override
+  Future<void> closePane(String paneId) async {
+    closePaneCalls.add(paneId);
+  }
+
+  @override
+  Future<void> closeTab(String tabId) async {
+    closeTabCalls.add(tabId);
   }
 
   @override

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the agents snapshot, and `agent.prompt` still falls back to pane send-text.
 - Restored `EnrichTabLabels` on snapshot (accidentally dropped in 0.4.6 relay
   fallback commit).
+- Compile fix: define `_isAgentNotFound` used by the agent.prompt → pane fallback.
 
 ## [0.4.5] - 2026-10-19
 

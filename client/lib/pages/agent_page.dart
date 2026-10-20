@@ -12,6 +12,7 @@ import '../models/relay_event.dart';
 import '../repositories/agent_repository.dart';
 import '../services/app_settings.dart';
 import '../services/command_history_service.dart';
+import '../services/relay_client.dart' show RelayException;
 import '../utils/toast_service.dart';
 import '../widgets/ansi_terminal.dart';
 import '../widgets/status_chip.dart';
@@ -307,6 +308,14 @@ class _AgentPageState extends State<AgentPage> {
     } finally {
       if (mounted) setState(() => _sending = false);
     }
+  }
+
+
+  bool _isAgentNotFound(Object e) {
+    if (e is RelayException) {
+      return e.code == 'agent_not_found';
+    }
+    return e.toString().contains('agent_not_found');
   }
 
   Future<void> _sendKeys(List<String> keys) async {

@@ -14,6 +14,7 @@ import '../services/app_settings.dart';
 import '../theme/app_theme.dart';
 import '../services/command_history_service.dart';
 import '../services/relay_client.dart' show RelayException;
+import '../utils/terminal_history.dart';
 import '../utils/toast_service.dart';
 import '../widgets/ansi_terminal.dart';
 import '../widgets/status_chip.dart';
@@ -49,6 +50,15 @@ class _AgentPageState extends State<AgentPage> {
   final FocusNode _inputFocusNode = FocusNode();
 
   String _output = '';
+
+  /// Rows behind [_output]: the full herdr window read on open plus tails
+  /// stitched on by live refreshes (see utils/terminal_history.dart).
+  List<String> _lines = const [];
+
+  /// True when the oldest row shown is not the start of the pane: herdr
+  /// returned its full per-read cap ([kHerdrMaxReadLines]) so older rows exist
+  /// on the host but herdr cannot serve them.
+  bool _historyCapped = false;
   bool _loading = true;
   bool _sending = false;
 
@@ -237,6 +247,13 @@ class _AgentPageState extends State<AgentPage> {
   /// failure is swallowed — the last good output remains on screen; the next
   /// event will retry. [knownRevision] (the event's revision) lets the
   /// repository skip the RPC when the cached output already matches it.
+  ///
+  /// The first load and manual refreshes read herdr's whole window
+  /// ([kHerdrMaxReadLines] rows — herdr's hard per-read cap). Silent live
+  /// refreshes read only the last [kTailReadLines] rows and stitch them onto
+  /// what is already shown, so slow links don't re-send the full history on
+  /// every update; if the tail can't be stitched (too much scrolled by, or a
+  /// full redraw) it falls back to a full read.
   Future<void> _refresh({bool silent = false, int? knownRevision}) async {
     final gen = ++_refreshGeneration;
     if (!silent) {
@@ -246,15 +263,42 @@ class _AgentPageState extends State<AgentPage> {
       final live = _store.byId(_agent.id) ?? _agent;
       final usePane = live.isPlainTerminal ||
           live.status.toLowerCase() == 'unknown';
-      final output = usePane
-          ? await _repository.getPaneOutput(live.id,
-              lines: 500, knownRevision: knownRevision)
-          : await _repository.getOutput(live.id,
-              lines: 500, knownRevision: knownRevision);
-      if (!mounted || gen != _refreshGeneration) return;
-      if (silent && output == _output) return; // no change, no repaint
+      Future<String> read(int lines) => usePane
+          ? _repository.getPaneOutput(live.id,
+              lines: lines, knownRevision: knownRevision)
+          : _repository.getOutput(live.id,
+              lines: lines, knownRevision: knownRevision);
+
+      final old = _lines;
+      List<String>? merged;
+      var capped = _historyCapped;
+      var trailingNewline = false;
+      if (silent && old.isNotEmpty) {
+        final raw = await read(kTailReadLines);
+        trailingNewline = raw.endsWith('\n');
+        final tail = splitTerminalLines(raw);
+        if (!mounted || gen != _refreshGeneration) return;
+        merged = mergeTerminalTail(old, tail);
+      }
+      if (merged == null) {
+        final raw = await read(kHerdrMaxReadLines);
+        trailingNewline = raw.endsWith('\n');
+        final full = splitTerminalLines(raw);
+        if (!mounted || gen != _refreshGeneration) return;
+        // Keep rows we already hold above the overlap (herdr may have
+        // scrolled them out of its window); otherwise take the read as is.
+        merged = mergeTerminalTail(old, full) ?? full;
+        capped = full.length >= kHerdrMaxReadLines;
+      }
+      if (merged.length >= kMaxRetainedLines) capped = true;
+      final output = merged.join('\n') + (trailingNewline ? '\n' : '');
+      if (silent && output == _output && capped == _historyCapped) {
+        return; // no change, no repaint
+      }
       setState(() {
+        _lines = merged!;
         _output = output;
+        _historyCapped = capped;
         _loading = false;
       });
       _scrollToBottom();
@@ -395,13 +439,24 @@ class _AgentPageState extends State<AgentPage> {
     final herdr = theme.extension<HerdrColors>() ?? HerdrColors.claude;
     return AnsiTerminal(
       controller: _scroll,
-      text: _output.isEmpty ? context.l10n.noOutput : _output,
+      text: _output.isEmpty
+          ? context.l10n.noOutput
+          : (_historyCapped ? '${_cappedNotice(context)}\n$_output' : _output),
       backgroundColor: herdr.terminalBg,
       style: AnsiTerminal.defaultStyle.copyWith(
         fontSize: _terminalFontSize,
         color: herdr.terminalFg,
       ),
     );
+  }
+
+  /// Dim first line shown when older rows exist but herdr can't serve them.
+  String _cappedNotice(BuildContext context) {
+    final zh = Localizations.localeOf(context).languageCode == 'zh';
+    final msg = zh
+        ? '── 更早的输出超出 herdr 单次读取上限（最近 $kHerdrMaxReadLines 行），无法加载 ──'
+        : '── Earlier output is beyond herdr\'s per-read limit ($kHerdrMaxReadLines rows) ──';
+    return '\x1B[90m$msg\x1B[0m';
   }
 
   Widget _buildInputBar(ThemeData theme) {

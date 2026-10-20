@@ -194,6 +194,39 @@ class _SettingsPageState extends State<SettingsPage> {
               onChanged: _settings.setAutoScrollFollow,
             ),
             const Divider(),
+            _header(context, context.l10n.settingsAppearance),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Text(
+                context.l10n.themeSubtitle,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: SegmentedButton<String>(
+                segments: [
+                  ButtonSegment(
+                    value: 'claude',
+                    label: Text(context.l10n.themeClaude),
+                    icon: const Icon(Icons.auto_awesome, size: 18),
+                  ),
+                  ButtonSegment(
+                    value: 'teal',
+                    label: Text(context.l10n.themeTeal),
+                    icon: const Icon(Icons.water_drop_outlined, size: 18),
+                  ),
+                ],
+                selected: {_settings.themeId},
+                onSelectionChanged: (set) {
+                  if (set.isEmpty) return;
+                  _settings.setThemeId(set.first);
+                },
+              ),
+            ),
+            const Divider(),
             _header(context, context.l10n.settingsAbout),
             ListTile(
               leading: const Icon(Icons.help_outline),

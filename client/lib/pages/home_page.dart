@@ -16,6 +16,7 @@ import '../utils/async_value.dart';
 import '../widgets/mode_picker_sheet.dart';
 import '../widgets/device_switcher_bar.dart';
 import '../widgets/status_chip.dart';
+import '../theme/app_theme.dart';
 import 'agent_page.dart';
 import 'run_page.dart';
 import 'settings_page.dart';
@@ -572,11 +573,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Color _modeColor(String mode) {
+    final colors = Theme.of(context).extension<HerdrColors>() ?? HerdrColors.claude;
     return switch (mode) {
-      'lan' => Colors.blue,
-      'tailscale' => Colors.purple,
-      'funnel' => Colors.orange,
-      _ => Colors.grey,
+      'lan' => colors.modeLan,
+      'tailscale' => colors.modeTailscale,
+      'funnel' => colors.modeFunnel,
+      _ => colors.statusUnknown,
     };
   }
 }

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
+
 import '../core/service_locator.dart';
 import '../core/transport/http_health.dart';
 import '../l10n/l10n_ext.dart';
@@ -203,13 +205,14 @@ class _DeviceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final herdr = theme.extension<HerdrColors>() ?? HerdrColors.claude;
     final Color dot;
     if (connecting) {
-      dot = Colors.orange;
+      dot = herdr.statusWorking;
     } else if (online == true) {
-      dot = Colors.green;
+      dot = herdr.statusIdle;
     } else if (online == false) {
-      dot = Colors.grey;
+      dot = herdr.statusUnknown;
     } else {
       dot = theme.colorScheme.outlineVariant;
     }

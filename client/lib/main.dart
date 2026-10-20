@@ -14,7 +14,9 @@ import 'pages/agent_page.dart';
 import 'pages/connection_page.dart';
 import 'pages/home_page.dart';
 import 'pages/pair_page.dart';
+import 'services/app_settings.dart';
 import 'services/config_store.dart';
+import 'theme/app_theme.dart';
 import 'services/notification_api.dart';
 import 'services/relay_client.dart';
 
@@ -244,35 +246,36 @@ class _HerdrMobileAppState extends State<HerdrMobileApp> {
     // Navigator never replaces its own '/' route when MaterialApp.home is
     // mutated, which is exactly what used to leave the splash on screen after
     // bootstrap finished.
-    return MaterialApp(
-      navigatorKey: _navKey,
-      title: 'Herdr Mobile',
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      localeResolutionCallback: (locale, supported) {
-        if (locale == null) return supported.first;
-        for (final l in supported) {
-          if (l.languageCode == locale.languageCode &&
-              (l.countryCode == null ||
-                  l.countryCode!.isEmpty ||
-                  l.countryCode == locale.countryCode)) {
-            return l;
-          }
-        }
-        for (final l in supported) {
-          if (l.languageCode == locale.languageCode) return l;
-        }
-        return supported.first; // English fallback
+    final settings = getIt<AppSettings>();
+    return ListenableBuilder(
+      listenable: settings,
+      builder: (context, _) {
+        final themeId = AppThemeIdX.fromStorage(settings.themeId);
+        return MaterialApp(
+          navigatorKey: _navKey,
+          title: 'Herdr Mobile',
+          debugShowCheckedModeBanner: false,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localeResolutionCallback: (locale, supported) {
+            if (locale == null) return supported.first;
+            for (final l in supported) {
+              if (l.languageCode == locale.languageCode &&
+                  (l.countryCode == null ||
+                      l.countryCode!.isEmpty ||
+                      l.countryCode == locale.countryCode)) {
+                return l;
+              }
+            }
+            for (final l in supported) {
+              if (l.languageCode == locale.languageCode) return l;
+            }
+            return supported.first; // English fallback
+          },
+          theme: AppThemes.forId(themeId),
+          home: _appRoot(),
+        );
       },
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.teal,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      home: _appRoot(),
     );
   }
 

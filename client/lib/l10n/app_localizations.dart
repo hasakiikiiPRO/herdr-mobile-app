@@ -465,6 +465,30 @@ abstract class AppLocalizations {
   /// **'Keep the terminal scrolled to the bottom as new output arrives'**
   String get autoFollowTerminalSubtitle;
 
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearance;
+
+  /// No description provided for @themeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App color theme'**
+  String get themeSubtitle;
+
+  /// No description provided for @themeClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Claude'**
+  String get themeClaude;
+
+  /// No description provided for @themeTeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Teal'**
+  String get themeTeal;
+
   /// No description provided for @settingsAbout.
   ///
   /// In en, this message translates to:

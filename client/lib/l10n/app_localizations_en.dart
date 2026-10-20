@@ -216,6 +216,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Keep the terminal scrolled to the bottom as new output arrives';
 
   @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get themeSubtitle => 'App color theme';
+
+  @override
+  String get themeClaude => 'Claude';
+
+  @override
+  String get themeTeal => 'Teal';
+
+  @override
   String get settingsAbout => 'About';
 
   @override

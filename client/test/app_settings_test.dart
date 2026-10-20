@@ -16,6 +16,7 @@ void main() {
       expect(s.terminalFontSize, AppSettings.kDefaultFontSize);
       expect(s.autoScrollFollow, isTrue);
       expect(s.notificationsEnabled, isTrue);
+      expect(s.themeId, 'claude');
       expect(s.agentSnapshot, isNull);
       expect(s.agentSnapshotAt, isNull);
       expect(s.sessionSnapshot, isNull);
@@ -51,6 +52,16 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       AppSettings(prefs).setAutoScrollFollow(false);
       expect(AppSettings(prefs).autoScrollFollow, isFalse);
+    });
+
+    test('themeId defaults to claude and round-trips', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      expect(AppSettings(prefs).themeId, 'claude');
+      AppSettings(prefs).setThemeId('teal');
+      expect(AppSettings(prefs).themeId, 'teal');
+      AppSettings(prefs).setThemeId('nope');
+      expect(AppSettings(prefs).themeId, 'claude');
     });
 
     test('notificationsEnabled сохраняется (дефолт включён)', () async {

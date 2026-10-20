@@ -26,6 +26,7 @@ class AppSettings extends ChangeNotifier {
   static const String kTerminalFontSize = 'settings_terminal_font_size';
   static const String kAutoScrollFollow = 'settings_auto_scroll_follow';
   static const String kNotificationsEnabled = 'settings_notifications_enabled';
+  static const String kThemeId = 'settings_theme_id';
   static const String kAgentSnapshot = 'last_snapshot';
   static const String kAgentSnapshotAt = 'last_snapshot:ts';
   static const String kSessionSnapshot = 'session_snapshot';
@@ -76,6 +77,15 @@ class AppSettings extends ChangeNotifier {
 
   void setNotificationsEnabled(bool value) {
     _prefs.setBool(kNotificationsEnabled, value);
+    notifyListeners();
+  }
+
+  /// Visual theme id: `claude` (default) or `teal`. See [AppThemeId].
+  String get themeId => _prefs.getString(kThemeId) ?? 'claude';
+
+  void setThemeId(String value) {
+    final normalized = (value == 'teal') ? 'teal' : 'claude';
+    _prefs.setString(kThemeId, normalized);
     notifyListeners();
   }
 

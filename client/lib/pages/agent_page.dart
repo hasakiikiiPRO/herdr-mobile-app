@@ -11,6 +11,7 @@ import '../models/relay_agent.dart';
 import '../models/relay_event.dart';
 import '../repositories/agent_repository.dart';
 import '../services/app_settings.dart';
+import '../theme/app_theme.dart';
 import '../services/command_history_service.dart';
 import '../services/relay_client.dart' show RelayException;
 import '../utils/toast_service.dart';
@@ -391,10 +392,15 @@ class _AgentPageState extends State<AgentPage> {
     if (_loading && _output.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
+    final herdr = theme.extension<HerdrColors>() ?? HerdrColors.claude;
     return AnsiTerminal(
       controller: _scroll,
       text: _output.isEmpty ? context.l10n.noOutput : _output,
-      style: AnsiTerminal.defaultStyle.copyWith(fontSize: _terminalFontSize),
+      backgroundColor: herdr.terminalBg,
+      style: AnsiTerminal.defaultStyle.copyWith(
+        fontSize: _terminalFontSize,
+        color: herdr.terminalFg,
+      ),
     );
   }
 
@@ -471,7 +477,7 @@ class _AgentPageState extends State<AgentPage> {
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
     final danger = style.copyWith(
-      foregroundColor: WidgetStatePropertyAll(Colors.red.shade700),
+      foregroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.error),
     );
 
     Widget key(String label, List<String> keys, {String? tooltip, ButtonStyle? s}) {

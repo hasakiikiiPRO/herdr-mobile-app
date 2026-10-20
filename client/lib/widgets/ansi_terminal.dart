@@ -18,7 +18,7 @@ class AnsiTerminal extends StatefulWidget {
     required this.text,
     this.controller,
     this.style,
-    this.backgroundColor = const Color(0xFF1E1E1E),
+    this.backgroundColor = const Color(0xFF0D0D0D),
     this.padding = const EdgeInsets.all(12),
   });
 
@@ -42,7 +42,7 @@ class AnsiTerminal extends StatefulWidget {
     height: 1.3,
     fontFamilyFallback: ['Menlo', 'RobotoMono', 'Courier New', 'monospace'],
     fontFeatures: [FontFeature.tabularFigures()],
-    color: Color(0xFFE0E0E0),
+    color: Color(0xFFE8E4DF),
   );
 
   /// Dark-on-light variant used when no explicit style is given and the app

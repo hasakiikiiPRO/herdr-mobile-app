@@ -207,6 +207,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoFollowTerminalSubtitle => '有新输出时保持终端滚动到底部';
 
   @override
+  String get settingsAppearance => '外观';
+
+  @override
+  String get themeSubtitle => '应用配色主题';
+
+  @override
+  String get themeClaude => 'Claude';
+
+  @override
+  String get themeTeal => '青绿';
+
+  @override
   String get settingsAbout => '关于';
 
   @override
@@ -681,6 +693,18 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get autoFollowTerminalSubtitle => '有新输出时保持终端滚动到底部';
+
+  @override
+  String get settingsAppearance => '外观';
+
+  @override
+  String get themeSubtitle => '应用配色主题';
+
+  @override
+  String get themeClaude => 'Claude';
+
+  @override
+  String get themeTeal => '青绿';
 
   @override
   String get settingsAbout => '关于';

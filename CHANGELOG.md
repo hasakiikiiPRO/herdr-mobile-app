@@ -5,6 +5,16 @@ All notable changes to Herdr Mobile project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.7
+
+### Fixed
+- **First message to a brand-new / undetected agent** no longer fails with
+  `agent_not_found`: the client submits via pane send when status is `unknown`,
+  the relay promotes Claude-titled panes missing from `herdr agent list` into
+  the agents snapshot, and `agent.prompt` still falls back to pane send-text.
+- Restored `EnrichTabLabels` on snapshot (accidentally dropped in 0.4.6 relay
+  fallback commit).
+
 ## [0.4.5] - 2026-10-19
 
 ### Fixed

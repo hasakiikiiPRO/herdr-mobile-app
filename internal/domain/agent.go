@@ -106,3 +106,99 @@ type AgentOutput struct {
 	// revision they saw in the last event.
 	Revision int `json:"revision,omitempty"`
 }
+
+
+// PromoteUndetectedAgentPanes adds panes that look like running agents but are
+// missing from agents[]. That happens when Claude is started via a wrapper that
+// execs `claude.real` (process comm becomes claude.real): herdr never binds the
+// pane, so it stays out of `herdr agent list` with agent_status=unknown — and the
+// phone's first agent.prompt fails with agent_not_found. Promoting lets the app
+// list them; send still goes through the unknown/pane path until herdr binds.
+func (s *Snapshot) PromoteUndetectedAgentPanes() {
+	if s == nil {
+		return
+	}
+	have := make(map[string]struct{}, len(s.Agents))
+	for _, a := range s.Agents {
+		if a.PaneID != "" {
+			have[a.PaneID] = struct{}{}
+		}
+	}
+	for _, p := range s.Panes {
+		if p.PaneID == "" {
+			continue
+		}
+		if _, ok := have[p.PaneID]; ok {
+			continue
+		}
+		kind := p.Agent
+		if kind == "" {
+			kind = inferAgentKindFromTitle(p.TerminalTitle)
+		}
+		if kind == "" {
+			continue
+		}
+		status := p.AgentStatus
+		if status == "" {
+			status = "unknown"
+		}
+		title := p.TerminalTitle
+		stripped := title
+		if r, size := firstRune(title); size > 0 && isClaudeTitleMarker(r) {
+			stripped = trimLeftSpace(title[size:])
+		}
+		s.Agents = append(s.Agents, Agent{
+			Agent:                 kind,
+			AgentStatus:           status,
+			Cwd:                   p.Cwd,
+			Focused:               p.Focused,
+			PaneID:                p.PaneID,
+			TabID:                 p.TabID,
+			TabLabel:              p.TabLabel,
+			TerminalTitle:         title,
+			TerminalTitleStripped: stripped,
+			WorkspaceID:           p.WorkspaceID,
+		})
+		have[p.PaneID] = struct{}{}
+	}
+}
+
+func inferAgentKindFromTitle(title string) string {
+	if title == "" {
+		return ""
+	}
+	r, _ := firstRune(title)
+	if isClaudeTitleMarker(r) {
+		return "claude"
+	}
+	return ""
+}
+
+func isClaudeTitleMarker(r rune) bool {
+	switch {
+	case r == '✳' || r == '✻' || r == '✽' || r == '✶' || r == '✢' || r == '·':
+		return true
+	case r >= 0x2800 && r <= 0x28FF: // braille spinners
+		return true
+	case r >= 0x25D0 && r <= 0x25D3: // ◐◑◒◓
+		return true
+	default:
+		return false
+	}
+}
+
+func firstRune(s string) (rune, int) {
+	for i, r := range s {
+		return r, i + len(string(r))
+	}
+	return 0, 0
+}
+
+func trimLeftSpace(s string) string {
+	for i := 0; i < len(s); i++ {
+		if s[i] != ' ' && s[i] != '\t' {
+			return s[i:]
+		}
+	}
+	return ""
+}

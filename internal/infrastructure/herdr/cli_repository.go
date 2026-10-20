@@ -60,7 +60,10 @@ func (r *CLIRepository) Snapshot() (*domain.Snapshot, error) {
 	if err := json.Unmarshal(out, &env); err != nil {
 		return nil, fmt.Errorf("parse snapshot: %w", err)
 	}
-	return &env.Result.Snapshot, nil
+	snap := &env.Result.Snapshot
+	snap.EnrichTabLabels()
+	snap.PromoteUndetectedAgentPanes()
+	return snap, nil
 }
 
 // StartAgent launches an agent of the given kind into an existing pane:
@@ -124,10 +127,10 @@ func (r *CLIRepository) SendKeys(target string, keys []string) error {
 }
 
 // SendPrompt sends a text prompt to an agent.
-// When the pane is not in `herdr agent list` (e.g. status unknown while
-// Claude is still running), agent prompt returns agent_not_found; fall
-// back to pane send-text + Enter, which is what agent prompt does under
-// the hood for submission.
+// Brand-new agents (never messaged, or started via a claude.real wrapper)
+// are often missing from `herdr agent list`, so agent prompt returns
+// agent_not_found. Fall back to pane send-text + Enter — same submission
+// path agent prompt uses under the hood — so the first message still works.
 func (r *CLIRepository) SendPrompt(target, text string) error {
 	_, err := r.run("agent", "prompt", target, text)
 	if err == nil || !isAgentNotFound(err) {

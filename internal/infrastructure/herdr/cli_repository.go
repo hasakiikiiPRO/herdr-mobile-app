@@ -106,9 +106,12 @@ func (r *CLIRepository) ReadOutput(target string, lines int, format string) (str
 	return string(out), nil
 }
 
-// SendKeys sends key sequences to an agent.
+// SendKeys sends key sequences to a pane.
+// Uses `herdr pane send-keys` (not `agent send-keys`) so plain terminals
+// with agent_status=unknown accept Enter/arrows/Ctrl-C the same way
+// detected agents do. Pane ids and agent targets share the wN:pX form.
 func (r *CLIRepository) SendKeys(target string, keys []string) error {
-	args := append([]string{"agent", "send-keys", target}, keys...)
+	args := append([]string{"pane", "send-keys", target}, keys...)
 	_, err := r.run(args...)
 	return err
 }

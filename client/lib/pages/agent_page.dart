@@ -274,7 +274,10 @@ class _AgentPageState extends State<AgentPage> {
     setState(() => _sending = true);
     try {
       if (_agent.isPlainTerminal) {
+        // pane.send_text does not submit the line; shells need Enter.
+        // Soft keys / sendKeys go through pane.send-keys on the relay.
         await _repository.sendText(_agent.id, text);
+        await _repository.sendKeys(_agent.id, ['Enter']);
       } else {
         await _repository.sendPrompt(_agent.id, text);
       }

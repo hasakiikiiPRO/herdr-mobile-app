@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../l10n/l10n_ext.dart';
 
 import '../controllers/modes_controller.dart';
@@ -42,12 +43,20 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   late final AgentRepository _repository;
   late final AppSettings _settings;
+  String _appVersion = '…';
 
   @override
   void initState() {
     super.initState();
     _repository = getIt<AgentRepository>();
     _settings = getIt<AppSettings>();
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+    setState(() => _appVersion = info.version);
   }
 
   /// Immediate offline switch: the mode is a saved endpoint of the current
@@ -193,7 +202,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: Text(context.l10n.versionLabel('0.4.4')),
+              title: Text(context.l10n.versionLabel(_appVersion)),
             ),
             const SizedBox(height: 24),
           ],

@@ -5,6 +5,12 @@ All notable changes to Herdr Mobile project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.8
+
+### Changed
+- **Claude Code–style theme** (charcoal `#0D0D0D` + terracotta orange `#D97757`) as default Appearance; legacy teal theme still selectable in Settings.
+- App version bumped to `0.4.8+2004` (About reads package version).
+
 ## 0.4.7
 
 ### Fixed
